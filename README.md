@@ -4,27 +4,6 @@ Sample scripts maintained by the Netherlands Customer Success Unit (NL CSU).
 
 This repository is intended as a practical starting point for field/customer-success scenarios. It is **not** an official product repository and does not represent commitments from Microsoft product engineering teams.
 
-## Scope
-
-Current sample set under `fabric/`:
-
-- `gateway-connection-credentials`
-  - PowerShell and Python samples for encrypting Service Principal credentials for Fabric connection creation scenarios.
-  - Related REST API: https://learn.microsoft.com/en-us/rest/api/fabric/core/connections/create-connection?tabs=HTTP
-- `workspace-runtime-audit`
-  - PowerShell sample to find workspaces/items that appear to use Fabric Runtime 1.2.
-- `lakehouse-shortcut-audit`
-  - Notebook to detect lakehouse shortcuts that point to Delta multipart checkpoints.
-
-## Folder Structure
-
-- `fabric/gateway-connection-credentials/encrypt-gateway-credentials.ps1`
-- `fabric/gateway-connection-credentials/encrypt-gateway-credentials.py`
-- `fabric/gateway-connection-credentials/README.md`
-- `fabric/workspace-runtime-audit/find-fabric-runtime12-workspaces.ps1`
-- `fabric/lakehouse-shortcut-audit/find-multipart-shortcut-checkpoints.ipynb`
-- `fabric/lakehouse-shortcut-audit/README.md`
-
 ## Usage Notes
 
 - Review scripts before use and adapt them to your tenant/security requirements.
