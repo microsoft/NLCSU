@@ -6,6 +6,10 @@ This folder contains scripts to detect lakehouse table shortcuts that point to D
 
 Multipart Delta checkpoints are deprecated. Use this audit to identify existing shortcut usage that may require remediation.
 
+Reference:
+
+- https://github.com/delta-io/delta/blob/master/PROTOCOL.md#multi-part-checkpoint
+
 ## Files
 
 - `find-multipart-shortcut-checkpoints.ipynb`
