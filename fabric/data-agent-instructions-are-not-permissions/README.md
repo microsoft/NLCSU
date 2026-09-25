@@ -14,7 +14,7 @@ An authorized test user asks directly for `Customer Alias` and receives the conf
 |---|---|
 | [`agent-instructions.md`](agent-instructions.md) | Intentionally weak instructions used for the anti-pattern demo |
 | [`data/claims.csv`](data/claims.csv) | Minimal synthetic dataset; no customer or production data |
-| [`BLOG-LINKEDIN.md`](BLOG-LINKEDIN.md) | Publish-ready LinkedIn article |
+| [`BLOG-POST.md`](BLOG-POST.md) | Publish-ready standalone article suitable for LinkedIn |
 | [`images/`](images) | Sanitized figures reconstructed from the recorded test |
 
 ## Reproduce the demo

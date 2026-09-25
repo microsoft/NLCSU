@@ -2,7 +2,7 @@
 
 ![Custom instructions guide behavior; permissions enforce access](images/01-hero.png)
 
-**A practical Microsoft Fabric demo of why custom instructions are not an authorization boundary**
+**A standalone Microsoft Fabric demo of why custom instructions are not an authorization boundary**
 
 Imagine this:
 
