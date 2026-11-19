@@ -41,14 +41,8 @@ SOFTWARE.
     button:focus-visible,a:focus-visible{outline:3px solid #347ba9;outline-offset:4px}
     [hidden]{display:none!important}
     .wrap{width:min(1600px,calc(100% - 40px));margin-inline:auto}
-    .intro{padding:38px 0 28px;text-align:center}
-    .intro-lead{max-width:760px;margin:14px auto 0;color:#4b6372;font-size:17px;line-height:1.7}
-    .intro-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px}
-    .intro-actions a{padding:9px 16px;border:1px solid #a9cfca;border-radius:9px;background:white;text-decoration:none;font-size:13px;font-weight:600}
-    .intro-actions a:first-child{background:var(--teal);border-color:var(--teal);color:white}
-    .intro-privacy{margin:14px 0 0;color:var(--muted);font-size:12px}
     .map-heading{padding:18px 20px 12px;border-bottom:1px solid var(--line)}
-    .map-heading h2{margin:0 0 5px;font-size:20px;letter-spacing:-.3px}
+    .map-heading h1{margin:0 0 5px;font-size:20px;letter-spacing:-.3px}
     .map-heading p{margin:0;color:var(--muted);font-size:13px}
     .map-legend{padding:12px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
     .map-legend summary{cursor:pointer;color:var(--teal);font-weight:600}
@@ -155,7 +149,7 @@ SOFTWARE.
     .not-found{max-width:760px;margin:60px auto;padding:35px;background:white;border:1px solid var(--line);border-radius:18px}
     .not-found p{color:var(--muted);overflow-wrap:anywhere}
     .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
-    @media(max-width:700px){.wrap{width:calc(100% - 24px)}.intro{padding:24px 0 20px}.intro-lead{font-size:15px}.map-legend dl{grid-template-columns:1fr;gap:3px}.map-legend dd+dt{margin-top:7px}.section-heading h2{font-size:20px}.scenario-grid{grid-template-columns:1fr}.scenario-card{min-height:60px}.article{margin-top:12px}.article-body{padding:20px 17px}.article p,.article li{font-size:14px}.related-grid{grid-template-columns:1fr}.preview{padding:16px}}
+    @media(max-width:700px){.wrap{width:calc(100% - 24px)}.map-legend dl{grid-template-columns:1fr;gap:3px}.map-legend dd+dt{margin-top:7px}.section-heading h2{font-size:20px}.scenario-grid{grid-template-columns:1fr}.scenario-card{min-height:60px}.article{margin-top:12px}.article-body{padding:20px 17px}.article p,.article li{font-size:14px}.related-grid{grid-template-columns:1fr}.preview{padding:16px}}
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
     @media print{.preview{display:none!important}.wrap{width:100%}.map-viewport{overflow:visible}.article-body{border:0;padding:0}.node-button{box-shadow:none}.article{max-width:none}.article a{overflow-wrap:anywhere}}
   </style>
@@ -1021,22 +1015,12 @@ SOFTWARE.
       document.title = data.name;
       app.dataset.view = "overview";
       previewNeedsPointerMovement = false;
-      const intro = element("section", "intro");
-      intro.append(element("p", "eyebrow", "Microsoft Fabric - Customer reference"),
-        element("h1", "", data.name),
-        element("p", "intro-lead", "Simplify Microsoft Fabric access decisions. Explore workspace roles, item permissions and data access paths, then find a practical starting point for your scenario."));
-      const actions = element("nav", "intro-actions");
-      actions.setAttribute("aria-label", "Get started");
-      const scenariosLink = element("a", "", "Find your scenario");
-      scenariosLink.href = "#scenarios";
-      actions.append(scenariosLink, localLink("topic", "effective-access", "Understand the access model"));
-      intro.append(actions, element("p", "intro-privacy", "Runs locally in your browser. No sign-in, tenant connection or data collection."));
       const card = element("section", "map-card");
       card.setAttribute("aria-label", "Fabric access diagram");
       const mapHeading = element("div", "map-heading");
       const mapHelp = element("p", "", "Follow the map from identity to an item family. Hover or focus for a preview; open a card for full guidance in a new tab. Scroll the map sideways on smaller screens.");
       mapHelp.id = "map-help";
-      mapHeading.append(element("h2", "", "Follow the access path"), mapHelp);
+      mapHeading.append(element("h1", "", "Follow the access path"), mapHelp);
       const viewport = element("div", "map-viewport");
       viewport.tabIndex = 0;
       viewport.setAttribute("role", "region");
@@ -1091,7 +1075,7 @@ SOFTWARE.
         grid.append(a);
       }
       scenarioSection.append(scenarioHeading, grid);
-      app.append(intro, card, scenarioSection, renderReferenceFooter());
+      app.append(card, scenarioSection, renderReferenceFooter());
       viewport.scrollLeft = Math.max(0, (canvas.clientWidth - viewport.clientWidth)/2);
       graphObserver = new ResizeObserver(queueEdges);
       graphObserver.observe(canvas);
