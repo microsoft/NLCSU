@@ -4,6 +4,12 @@ Sample scripts maintained by the Netherlands Customer Success Unit (NL CSU).
 
 This repository is intended as a practical starting point for field/customer-success scenarios. It is **not** an official product repository and does not represent commitments from Microsoft product engineering teams.
 
+## Microsoft Fabric resources
+
+- [Fabric Access Atlas](fabric/fabric-access-atlas/README.md): an interactive,
+  customer-facing guide that simplifies workspace roles, item permissions and
+  data access decisions. Download the standalone HTML file and open it locally.
+
 ## Usage Notes
 
 - Review scripts before use and adapt them to your tenant/security requirements.

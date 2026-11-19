@@ -1,0 +1,1308 @@
+<!doctype html>
+<!--
+MIT License
+
+Copyright (c) Microsoft Corporation.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A practical, interactive guide that helps Microsoft Fabric customers understand workspace roles, item permissions and data access paths.">
+  <title>Fabric Access Atlas</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%2300797b'/%3E%3Cpath d='M10 28V12h20M10 20h15' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <style>
+    :root{color-scheme:light;--ink:#172e40;--muted:#60717e;--line:#dde5e8;--paper:#f6f8f8;--teal:#00797b;--teal-soft:#eaf5f3;--purple:#685397;--blue:#486da0;--green:#417a60;--amber:#987036;--slate:#637385;--shadow:0 12px 36px #18364612}
+    *{box-sizing:border-box}
+    html{scroll-behavior:auto}
+    body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 "Segoe UI",Arial,sans-serif}
+    button,a{-webkit-tap-highlight-color:transparent}
+    a{color:var(--teal);text-underline-offset:3px}
+    button{font:inherit}
+    button,a{touch-action:manipulation}
+    button:focus-visible,a:focus-visible{outline:3px solid #347ba9;outline-offset:4px}
+    [hidden]{display:none!important}
+    .wrap{width:min(1600px,calc(100% - 40px));margin-inline:auto}
+    .intro{padding:38px 0 28px;text-align:center}
+    .intro-lead{max-width:760px;margin:14px auto 0;color:#4b6372;font-size:17px;line-height:1.7}
+    .intro-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px}
+    .intro-actions a{padding:9px 16px;border:1px solid #a9cfca;border-radius:9px;background:white;text-decoration:none;font-size:13px;font-weight:600}
+    .intro-actions a:first-child{background:var(--teal);border-color:var(--teal);color:white}
+    .intro-privacy{margin:14px 0 0;color:var(--muted);font-size:12px}
+    .map-heading{padding:18px 20px 12px;border-bottom:1px solid var(--line)}
+    .map-heading h2{margin:0 0 5px;font-size:20px;letter-spacing:-.3px}
+    .map-heading p{margin:0;color:var(--muted);font-size:13px}
+    .map-legend{padding:12px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .map-legend summary{cursor:pointer;color:var(--teal);font-weight:600}
+    .map-legend dl{display:grid;grid-template-columns:max-content 1fr;gap:5px 16px;margin:12px 0 0}
+    .map-legend dt{font-weight:650;color:var(--ink)}
+    .map-legend dd{margin:0}
+    .atlas-footer{border-top:1px solid var(--line);padding:18px 0 26px;color:var(--muted);font-size:12px}
+    .atlas-footer p{margin:0 0 8px;font-size:12px;line-height:1.7}
+    .eyebrow{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--teal);margin:0 0 7px}
+    h1{font-size:clamp(28px,3vw,36px);line-height:1.15;letter-spacing:-1px;margin:0;font-weight:650}
+    .map-card{background:white;border:1px solid var(--line);border-radius:16px}
+    .map-viewport{overflow-x:auto;overscroll-behavior-x:contain;border-radius:inherit}
+    .graph-canvas{position:relative;min-width:1200px;padding:14px 20px 24px;background-image:radial-gradient(#58708015 .7px,transparent .7px);background-size:18px 18px}
+    .graph-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+    .graph-edge{fill:none;stroke:#cbd6da;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;transition:stroke .12s,opacity .12s}
+    .graph-edge.is-active{stroke:var(--teal);stroke-width:1.8}
+    .essentials{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,240px));gap:24px 32px;justify-content:center;align-items:center;max-width:100%;margin-inline:auto}
+    .essentials .node-button{min-height:44px;width:100%}
+    .essentials [data-topic="identity"]{grid-column:1/3;justify-self:center;width:min(240px,100%)}
+    .essentials [data-topic="workspace-capabilities"]{grid-column:1}
+    .essentials [data-topic="item-access"]{grid-column:2}
+    .essentials [data-topic="effective-access"]{grid-column:1/3;justify-self:center;width:min(240px,100%)}
+    .family-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(290px,1.8fr) repeat(5,minmax(150px,1fr));gap:22px;align-items:start;margin-top:36px}
+    .family-block{--accent:var(--teal);min-width:0}
+    .family-block[data-family="sql-family"]{--accent:var(--purple)}
+    .family-block[data-family="bi-family"]{--accent:var(--blue)}
+    .family-block[data-family="execution-family"]{--accent:var(--green)}
+    .family-block[data-family="realtime-family"]{--accent:var(--amber)}
+    .family-block[data-family="other-items"]{--accent:var(--slate)}
+    .branch{min-width:0}
+    .branch-children{display:grid;gap:14px;padding-top:24px;padding-left:18px}
+    .branch-children.single-child{padding-left:0}
+    .route-split{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;padding-top:24px}
+    .node-button{position:relative;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-height:44px;padding:10px 12px;background:#fff;border:1px solid #dce5e7;border-radius:10px;color:var(--ink);font-size:14px;font-weight:550;line-height:1.35;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 2px 6px #243d4904;transition:border-color .12s,background .12s,box-shadow .12s;z-index:1}
+    .onelake-badge{font-size:10px;font-weight:600;line-height:1.35;padding:2px 5px;border-radius:5px;white-space:nowrap;background:#eaf5f0;color:#246858}
+    .onelake-badge.conditional{background:#fbf3e5;color:#86622b}
+    .onelake-badge.unavailable{background:#f0f3f4;color:#65727b}
+    .onelake-info{margin:0 0 15px;padding:9px 11px;border-left:2px solid #92bcb3;border-radius:0 6px 6px 0;background:#f2f7f5;font-size:12px;line-height:1.55;color:#3e6059}
+    .onelake-info strong{display:block;font-size:12px}
+    .onelake-info p,.article .onelake-info p{margin:4px 0 0;font-size:12.5px;line-height:1.6}
+    .branch>.node-button{width:100%}
+    .node-button:hover{border-color:var(--accent,var(--teal));box-shadow:0 3px 14px #1836460c}
+    .node-button.is-current{border-color:var(--teal);background:#f0f9f7;box-shadow:0 0 0 2px #00797b14}
+    .node-button.is-ancestor{border-color:#9cbdba;background:#f8fcfb}
+    .family-root{font-size:13px;font-weight:650;color:var(--accent);border-top:3px solid var(--accent);padding-block:11px;background:#fcfdfd}
+    .identity-node{background:var(--ink);color:white;border-color:var(--ink)}
+    .identity-node.is-current,.identity-node.is-ancestor{color:var(--ink)}
+    .effective-node{border-color:#a9cfca;background:#edf7f4;color:#126766;font-weight:650}
+    .scenarios{padding:25px 0 28px;scroll-margin-top:20px}
+    .section-heading{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:14px}
+    .section-heading h2{font-size:21px;font-weight:650;letter-spacing:-.4px;margin:0}
+    .section-heading p{font-size:12px;color:var(--muted);margin:0}
+    .scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .scenario-card{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 18px;min-height:69px;border:1px solid var(--line);border-radius:12px;background:#ffffffa8;text-decoration:none;color:var(--ink);font-size:13.5px;font-weight:550;line-height:1.5}
+    .scenario-card:hover{border-color:#99bbb6;background:white}
+    .external-icon::after{content:"\2197";font-size:17px;line-height:1;color:var(--teal)}
+    .preview{position:fixed;z-index:30;width:390px;max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);overflow:auto;border:1px solid #c9dbd8;border-radius:15px;background:white;box-shadow:0 18px 60px #19313f28;padding:18px}
+    .preview h2{font-size:19px;line-height:1.3;letter-spacing:-.3px;margin:0 0 9px}
+    .preview-summary{font-size:13.5px;line-height:1.65;color:#4f6472;margin:0 0 14px}
+    .preview-bullets{padding-left:18px;margin:0 0 16px;font-size:13px;line-height:1.65;color:#3e5868}
+    .preview-bullets li+li{margin-top:5px}
+    .preview-sources{display:grid;gap:7px;margin:0}
+    .preview-sources a{font-size:11.5px;line-height:1.4;text-decoration:none}
+    .preview-sources a:hover{text-decoration:underline}
+    .preview-hint{margin:13px 0 0;color:var(--muted);font-size:11.5px;line-height:1.5;white-space:nowrap}
+    .article{max-width:1000px;margin:15px auto 40px}
+    .article-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px}
+    .article-back{flex-shrink:0;white-space:nowrap;font-size:12px}
+    .breadcrumbs{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;font-size:12px;color:var(--muted)}
+    .breadcrumbs a{color:var(--muted);text-decoration:none}
+    .breadcrumbs a:hover{text-decoration:underline}
+    .article h1{font-size:clamp(27px,3.2vw,36px);line-height:1.2;letter-spacing:-1px;margin-bottom:10px}
+    .article-lead{font-size:16px;line-height:1.7;color:#4b6372;margin:0 0 17px;max-width:890px}
+    .article-body{background:white;border:1px solid var(--line);border-radius:14px;padding:23px 28px}
+    .article-section+ .article-section{margin-top:30px}
+    .article h2{font-size:21px;line-height:1.4;letter-spacing:-.3px;margin:0 0 12px;font-weight:650}
+    .article h3{font-size:17px;margin:24px 0 12px;font-weight:650}
+    .article p,.article li{font-size:15.5px;line-height:1.85}
+    .article p{margin:10px 0}
+    .article ul{padding-left:23px;margin:12px 0}
+    .article li+li{margin-top:7px}
+    .article-note{background:#f1f7f5;border-left:3px solid #69a79b;border-radius:0 9px 9px 0;padding:14px 18px;margin:18px 0;color:#3b5f5b;font-size:14px;line-height:1.75}
+    .table-scroll{overflow:auto;margin:17px 0;border:1px solid var(--line);border-radius:10px}
+    table{border-collapse:collapse;min-width:100%;font-size:13px;line-height:1.6}
+    caption{text-align:left;padding:13px 15px;background:#f4f8f7;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+    th,td{padding:11px 14px;text-align:left;border-bottom:1px solid #e8edef;vertical-align:top}
+    thead th{background:#f5f8f8;color:#354f5d;font-weight:650;white-space:nowrap}
+    tbody th{font-weight:600;white-space:nowrap}
+    tbody tr:last-child>*{border-bottom:0}
+    .cell-yes{color:#087262;font-weight:650}
+    .cell-no{color:#95622c}
+    .related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:13px}
+    .related-link{display:block;text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fbfdfc;font-size:13px;line-height:1.5}
+    .related-link:hover{border-color:#99bbb6}
+    .topic-sources{margin-top:29px;padding-top:25px;border-top:1px solid var(--line)}
+    .topic-sources ul{list-style:none;padding:0;display:grid;gap:10px}
+    .topic-sources li{margin:0}
+    .topic-sources a{font-size:13px;text-decoration:none}
+    .topic-sources a:hover{text-decoration:underline}
+    .inheritance{margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+    .inheritance-sources{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:10px}
+    .inheritance-sources a{font-size:12px}
+    .article-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:20px;font-size:12px;color:var(--muted)}
+    .not-found{max-width:760px;margin:60px auto;padding:35px;background:white;border:1px solid var(--line);border-radius:18px}
+    .not-found p{color:var(--muted);overflow-wrap:anywhere}
+    .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+    @media(max-width:700px){.wrap{width:calc(100% - 24px)}.intro{padding:24px 0 20px}.intro-lead{font-size:15px}.map-legend dl{grid-template-columns:1fr;gap:3px}.map-legend dd+dt{margin-top:7px}.section-heading h2{font-size:20px}.scenario-grid{grid-template-columns:1fr}.scenario-card{min-height:60px}.article{margin-top:12px}.article-body{padding:20px 17px}.article p,.article li{font-size:14px}.related-grid{grid-template-columns:1fr}.preview{padding:16px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+    @media print{.preview{display:none!important}.wrap{width:100%}.map-viewport{overflow:visible}.article-body{border:0;padding:0}.node-button{box-shadow:none}.article{max-width:none}.article a{overflow-wrap:anywhere}}
+  </style>
+</head>
+<body>
+  <main id="app" class="wrap"></main>
+  <aside id="preview" class="preview" role="region" aria-labelledby="preview-title" hidden>
+    <h2 id="preview-title"></h2>
+    <p id="preview-summary" class="preview-summary"></p>
+    <ul id="preview-bullets" class="preview-bullets" hidden></ul>
+    <div id="preview-onelake" hidden></div>
+    <div id="preview-sources" class="preview-sources"></div>
+    <p id="preview-hint" class="preview-hint">Click to open the full topic.</p>
+  </aside>
+  <noscript><div class="not-found wrap"><h1>JavaScript is required</h1><p>This self-contained reference uses local JavaScript for the map and topic pages. Enable JavaScript and reopen the file. No installation or server is needed.</p></div></noscript>
+  <script type="application/json" id="atlas-data">
+{
+  "name":"Fabric Access Atlas",
+  "reviewed":"18 November 2026",
+  "map":{
+    "essentials":["identity","workspace-capabilities","item-access","effective-access"],
+    "families":["lakehouse-family","sql-family","bi-family","execution-family","realtime-family","other-items"]
+  },
+  "sources":{
+    "s1":{"title":"Workspace roles and default capabilities","url":"https://learn.microsoft.com/en-us/fabric/fundamentals/roles-workspaces"},
+    "s2":{"title":"Item sharing and varying permission sets","url":"https://learn.microsoft.com/en-us/fabric/fundamentals/share-items"},
+    "s3":{"title":"Lakehouse and SQL endpoint sharing","url":"https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-sharing"},
+    "s4":{"title":"OneLake access model and DefaultReader","url":"https://learn.microsoft.com/en-us/fabric/onelake/security/data-access-control-model"},
+    "s5":{"title":"SQL endpoint identity modes","url":"https://learn.microsoft.com/en-us/fabric/onelake/security/sql-analytics-endpoint-onelake-security"},
+    "s6":{"title":"Reading secured data: filtering versus blocked files","url":"https://learn.microsoft.com/en-us/fabric/onelake/security/read-secured-data"},
+    "s7":{"title":"Warehouse permissions and sharing","url":"https://learn.microsoft.com/en-us/fabric/data-warehouse/share-warehouse-manage-permissions"},
+    "s8":{"title":"SQL database authorization and role matrix","url":"https://learn.microsoft.com/en-us/fabric/database/sql/authorization"},
+    "s9":{"title":"SQL database sharing and related model permissions","url":"https://learn.microsoft.com/en-us/fabric/database/sql/share-sql-manage-permission"},
+    "s10":{"title":"Mirrored database and landing-zone access","url":"https://learn.microsoft.com/en-us/fabric/mirroring/share-and-manage-permissions"},
+    "s11":{"title":"Semantic-model Read, Build, Reshare and Write","url":"https://learn.microsoft.com/en-us/power-bi/connect-data/service-datasets-permissions"},
+    "s12":{"title":"Notebook modes, sharing and execution identity","url":"https://learn.microsoft.com/en-us/fabric/data-engineering/how-to-use-notebook#notebook-mode-switcher"},
+    "s13":{"title":"Direct Lake security and source identity","url":"https://learn.microsoft.com/en-us/fabric/fundamentals/direct-lake-security-integration"},
+    "s14":{"title":"Fabric and Kusto hybrid role-based access","url":"https://learn.microsoft.com/en-us/kusto/access-control/role-based-access-control?view=microsoft-fabric"},
+    "s15":{"title":"ML model and experiment permissions","url":"https://learn.microsoft.com/en-us/fabric/data-science/models-experiments-rbac"},
+    "s16":{"title":"Variable-library and consumer permissions","url":"https://learn.microsoft.com/en-us/fabric/cicd/variable-library/variable-library-permissions"},
+    "s17":{"title":"Dataflow Gen2 shared queries (preview)","url":"https://learn.microsoft.com/en-us/fabric/data-factory/dataflow-gen2-my-queries-shared-queries"},
+    "s18":{"title":"Ontology Read, Write and Reshare (preview)","url":"https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-share-permissions"},
+    "s19":{"title":"Maps: workspace, item and source permissions","url":"https://learn.microsoft.com/en-us/fabric/real-time-intelligence/map/about-map-permissions"},
+    "s20":{"title":"Item jobs, execution APIs and delegated scopes","url":"https://learn.microsoft.com/en-us/rest/api/fabric/core/job-scheduler/run-on-demand-item-job"},
+    "s21":{"title":"Inherited SQL endpoint and Warehouse roles","url":"https://learn.microsoft.com/en-us/fabric/data-warehouse/workspace-roles"},
+    "s22":{"title":"Power BI workspace roles, apps and Dataflow Gen2 consumption","url":"https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-roles-new-workspaces"},
+    "s23":{"title":"Event schema set workspace and item permissions","url":"https://learn.microsoft.com/en-us/fabric/real-time-intelligence/schema-sets/schema-registry-overview#permissions"},
+    "s24":{"title":"Eventstream source authoring prerequisites","url":"https://learn.microsoft.com/en-us/fabric/real-time-intelligence/event-streams/add-manage-eventstream-sources"},
+    "s25":{"title":"Environment sharing and workspace-default restrictions","url":"https://learn.microsoft.com/en-us/fabric/data-engineering/create-and-use-environment"},
+    "s26":{"title":"User data functions: editing, publishing and execution","url":"https://learn.microsoft.com/en-us/fabric/data-engineering/user-data-functions/user-data-functions-portal-editor"},
+    "s27":{"title":"Workspace and item permission inheritance","url":"https://learn.microsoft.com/en-us/fabric/security/permission-model"}
+  },
+  "topics":[
+    {
+      "id":"identity","label":"Identity & groups","title":"Identity and groups","family":null,"parents":[],
+      "summary":"The user or application signed in to Fabric. Access comes from assignments to that identity and to its groups.",
+      "previewBullets":["A workspace role grants access across the workspace.","An item share grants access to selected content.","Group memberships can add either kind of access."],
+      "sections":[
+        {"heading":"Start with the signed-in identity","paragraphs":["Fabric authenticates a Microsoft Entra user or application. Permissions assigned directly or through its groups determine what that identity can access."]},
+        {"heading":"Follow the access path","bullets":["Find the applicable workspace roles and item shares.","Choose the item and the action: view, edit, run or share.","Check the data and connection permissions for that action."]},
+        {"heading":"Include group access","paragraphs":["Review direct assignments and group memberships together. Removing a personal item share leaves access provided by another group or workspace assignment in place."]}
+      ],
+      "sources":["s1","s2"],"related":["workspace-capabilities","item-access","effective-access","notebook-item","model-live"]
+    },
+    {
+      "id":"workspace-capabilities","label":"Workspace roles","title":"The four workspace roles","family":null,"parents":["identity"],
+      "summary":"A workspace role gives a person a working role across the workspace and its items.",
+      "previewBullets":["Admin: manage the workspace, its content and access.","Member: create/edit content, share it and add people with lower roles.","Contributor: create, edit and run supported items.","Viewer: view content, read permitted data and see execution results."],
+      "sections":[
+        {"heading":"Default workspace capabilities","table":{"caption":"Capabilities inherited across supported workspace items. Each item's topic explains its concrete permissions.","headers":["Role","View/open","Create/edit","Run supported jobs","Reshare by default","Update/delete workspace"],"rows":[["Admin",true,true,true,true,true],["Member",true,true,true,true,false],["Contributor",true,true,true,false,false],["Viewer",true,false,false,false,false]]},"note":"A supported item grant can add a capability, such as notebook Execute for a Viewer. Member can add people with lower roles; Admin manages existing role assignments and adds Admins."},
+        {"heading":"Choose the collaboration scope","paragraphs":["Use workspace roles for people who work across the workspace. Use supported item sharing for people who need selected content.","If direct assignments and group memberships provide several workspace roles, the highest role applies. A narrower item share leaves those inherited capabilities in place."]},
+        {"heading":"Find the item's inherited permissions","paragraphs":["Every item topic includes Workspace inheritance. Data items describe their SQL and OneLake rights; models describe Read, Build, Reshare and Write; execution items describe viewing, editing and running.","The applicable data engine determines how its policies affect each role. Test reader scenarios with the intended consumer identity."]}
+      ],
+      "sources":["s1","s2","s8","s11"],"related":["item-access","effective-access","lakehouse-family","sql-database","semantic-model"]
+    },
+    {
+      "id":"item-access","label":"Item-level access","title":"Access to an individual item","family":null,"parents":["identity"],
+      "summary":"Share an item with selected people or groups and choose the permissions available for that item type. Supported sharing can work without a workspace role.",
+      "previewBullets":["Read opens the selected item; its capabilities depend on the type.","Additional grants can allow data reading, editing, running or resharing.","Some dependent features also require workspace, source or connection access."],
+      "sections":[
+        {"heading":"Choose people and permissions","paragraphs":["Supported sharing gives the recipient access to the selected item. Workspace membership stays unchanged.","Read is included when sharing grants access. Depending on the item, it can open a Lakehouse, consume model data, inspect code or view ontology structure."]},
+        {"heading":"The extra permissions vary","bullets":["Data items can distinguish SQL ReadData from OneLake/Spark ReadAll.","Semantic-model permissions include Read, Build, Reshare and Write.","Notebook Read/Write/Execute combinations determine view, edit and run modes.","Some workload operations still require workspace access or permissions on dependencies."]},
+        {"heading":"Granting access and copying a link","paragraphs":["A link for people with existing access provides navigation; it leaves permissions unchanged. A shared-query preview link requires the documented access to its source dataflow.","Use the permissions offered for the specific item. Its sharing dialog can use friendly labels such as Edit for Write."]}
+      ],
+      "sources":["s2","s3","s11","s12","s17"],"related":["effective-access","dataflow-item","variable-library","map-items"]
+    },
+    {
+      "id":"effective-access","label":"Effective item access","title":"Effective item access","family":null,"parents":["workspace-capabilities","item-access"],
+      "summary":"Workspace roles, item shares and group assignments combine into access to an item. Follow its family to check the permitted operations and data route.",
+      "previewBullets":["Review inherited workspace access and direct item grants together.","Choose the item family for its four-role inheritance and supported actions.","Check the effective reader's data, execution and connection permissions."],
+      "sections":[
+        {"heading":"Alternative sources of access","paragraphs":["A user can obtain item entry through workspace-inherited access, a supported explicit share, or both.","An item-only consumer can open the shared item while the rest of the workspace stays unavailable."]},
+        {"heading":"Removing one path may leave another","paragraphs":["If Viewer already grants access to the item, removing a direct Read share does not remove that inherited access. Review every direct, workspace and group assignment.","An explicit Read-only item share also does not reduce a Contributor's inherited capabilities."]},
+        {"heading":"Continue through the data path","paragraphs":["After item entry, SQL, OneLake and semantic models evaluate the requested action using their own permission and policy rules. Include the effective source identity, connection rights and workload prerequisites."]},
+        {"heading":"Four useful questions","bullets":["Does this person need the whole workspace or one item?","Can this principal open the specific item?","Which underlying data may the effective identity read?","What can that identity do through this engine or execution path?"]},
+        {"heading":"Follow a family","paragraphs":["Choose Lakehouse/OneLake, SQL data items, Power BI, Execution, Real-Time or Other items. Each branch explains its inherited permissions, sharing choices and data dependencies."]}
+      ],
+      "sources":["s1","s2","s4"],"related":["lakehouse-family","sql-family","bi-family","execution-family","realtime-family","other-items","lh-user","warehouse","semantic-model"]
+    },
+    {
+      "id":"lakehouse-family","label":"Lakehouse & OneLake","title":"Lakehouse and OneLake access paths","family":"lakehouse-family","parents":["effective-access"],
+      "oneLake":{"roles":"supported","note":"Lakehouse supports Read and ReadWrite roles. ReadWrite roles cannot include RLS/CLS. The other documented role hosts are mirrored databases, mirrored catalogs and Azure Databricks mirrored catalogs (Read)."},
+      "summary":"Read a Lakehouse through OneLake/Spark or its SQL analytics endpoint. The SQL route branches into delegated identity and user's identity modes.",
+      "previewBullets":["Admin, Member and Contributor inherit SQL and OneLake access.","Viewer inherits SQL reading; broad OneLake ReadAll requires another grant.","Choose the data route to see which identity and policies apply."],
+      "inheritance":[{"heading":"Lakehouse","items":["Lakehouse"],"sources":["s1","s3"],"table":{"caption":"Default Lakehouse permissions inherited from the workspace role.","headers":["Workspace role","Read","ReadData: SQL","ReadAll: OneLake/Spark","Write","Reshare"],"rows":[["Admin",true,true,true,true,true],["Member",true,true,true,true,true],["Contributor",true,true,true,true,false],["Viewer",true,true,false,false,false]]},"paragraphs":["OneLake security roles and the chosen SQL endpoint mode determine how data policies are enforced. A direct item or OneLake grant can add access to these defaults."]}],
+      "sections":[
+        {"heading":"Two main reading routes","bullets":["OneLake/Spark: follow OneLake authorization, effective identity and engine support.","SQL analytics endpoint: choose delegated identity or user's identity and follow that mode's authority."]},
+        {"heading":"Choose the scope when sharing","paragraphs":["Sharing a Lakehouse also shares its associated SQL analytics endpoint. Add ReadData for broad SQL reading or ReadAll for OneLake/Spark reading, or use granular policies for selected data.","Lakehouse SQL endpoints provide read-only table data. Running Spark code also requires execution rights on the notebook or job."]}
+      ],
+      "sources":["s1","s3","s4","s5","s7"],"related":["lh-onelake","lh-sql","sql-database"]
+    },
+    {
+      "id":"lh-onelake","label":"OneLake / Spark","title":"The OneLake and Spark data route","family":"lakehouse-family","parents":["lakehouse-family"],
+      "oneLake":{"filtering":"supported","note":"Supported Spark reads enforce the source item's OneLake RLS/CLS. Direct raw-file access follows the raw-file branch."},
+      "summary":"OneLake permissions govern reads through storage APIs and supported engines such as Spark.",
+      "inheritanceFrom":"lakehouse-family",
+      "previewBullets":["Check ReadAll or a granting OneLake role for the actual reader.","Notebook and job execution need their own permissions.","Supported engines can enforce table, row and column policies."],
+      "sections":[
+        {"heading":"Entry and effective identity","paragraphs":["Fabric item entry and data authorization are distinct. Evaluate the calling user or the actual execution identity used by the notebook or engine.","A SQL SELECT grant does not independently grant access to the underlying OneLake files."]},
+        {"heading":"Follow the policy and the reader","paragraphs":["With OneLake security enabled, evaluate the applicable OneLake roles, including any default roles and overlapping grants.","Supported query engines can filter secured tables. Raw file access that cannot safely apply partial authorization can instead be blocked."]}
+      ],
+      "sources":["s3","s4","s6"],"related":["lh-policy","lh-engine","lh-raw","notebook-item"]
+    },
+    {
+      "id":"lh-policy","label":"OneLake permissions","title":"OneLake roles, ReadAll and DefaultReader","family":"lakehouse-family","parents":["lh-onelake"],
+      "previewBullets":["A granting role defines access to tables, folders, rows or columns.","DefaultReader commonly grants broad reading to ReadAll holders.","A targeted role can grant selected data without broad ReadAll."],
+      "inheritanceFrom":"lakehouse-family",
+      "summary":"With OneLake security enabled, a reader's ReadAll grant reaches data through DefaultReader if that role still grants access. A targeted OneLake role need not require ReadAll.",
+      "sections":[
+        {"heading":"Roles define data access","paragraphs":["OneLake roles can scope access to tables, folders, rows and columns where supported. Include every effective role, not just the narrow role you intended to demonstrate.","Roles support granting access. Deny-by-default is not the same thing as a SQL-style Deny role."]},
+        {"heading":"ReadAll and DefaultReader","paragraphs":["With OneLake security enabled, a reader's ReadAll permission is evaluated through granting roles, commonly DefaultReader. Changing or removing that role can change access while ReadAll remains assigned.","An explicit OneLake role can grant targeted data access without adding broad ReadAll. When security is off, ReadAll is the broad reading path.","Admin, Member and Contributor have elevated access through Write. User-mode policies and documented engine exceptions still need evaluation on the actual route."]},
+        {"heading":"Combining roles","paragraphs":["Within a role, object, row and column constraints combine. OneLake generally unions access across roles, and row predicates can broaden through OR.","SQL analytics endpoint CLS can use stricter intersections of column allowlists. Follow the composition rule for the actual engine."]}
+      ],
+      "sources":["s4","s5","s6"],"related":["lh-engine","lh-raw","lh-user"]
+    },
+    {
+      "id":"lh-engine","label":"Supported query engines","title":"Filtered reads through a supported engine","family":"lakehouse-family","parents":["lh-policy"],
+      "oneLake":{"filtering":"supported","note":"The documented filtering engines include Spark notebooks, user-identity SQL endpoints, Direct Lake on OneLake, Eventhouse and Graph."},
+      "previewBullets":["Supported Spark and user-identity SQL paths can return filtered data.","Effective roles determine the available rows and columns.","Validate the result with the intended consumer identity."],
+      "inheritanceFrom":"lakehouse-family",
+      "summary":"Supported engines can enforce OneLake RLS and CLS while reading, returning only permitted rows and columns. Engine configuration and feature support still matter.",
+      "sections":[
+        {"heading":"Read the authorized rows and columns","paragraphs":["A supported query engine applies the effective OneLake policies at query time. This includes supported Spark notebook paths and SQL analytics endpoints configured for user's identity.","A NorthReader role can permit North records and public columns. The result depends on all effective grants and engine behavior."]},
+        {"heading":"Check engine support","paragraphs":["Use an engine documented to enforce the configured policies, and validate the output with the intended consumer identity."]}
+      ],
+      "sources":["s4","s5","s6"],"related":["lh-raw","lh-user","model-live"]
+    },
+    {
+      "id":"lh-raw","label":"Raw file access","title":"Raw file and storage access","family":"lakehouse-family","parents":["lh-policy"],
+      "oneLake":{"filtering":"not-applied","note":"An ordinary raw-file read cannot filter partial rows/columns and is blocked when that filtering is required. OneLake access controls still apply."},
+      "previewBullets":["Direct file access needs sufficient rights to the file's contents.","Partial table access can work through a policy-enforcing query engine.","A blocked file read can coexist with a successful filtered query."],
+      "inheritanceFrom":"lakehouse-family",
+      "summary":"If partial row or column access cannot be safely enforced on a raw-file route, the read is blocked instead of returning filtered Parquet files.",
+      "sections":[
+        {"heading":"How raw reads are enforced","paragraphs":["OneLake blocks a file request when the caller has only partial row/column access and that route cannot safely filter the file.","The same principal can still query its permitted data through a supported policy-enforcing engine."]},
+        {"heading":"Choose an appropriate reader","paragraphs":["Table-query APIs and authorized engines can support filtering. For direct file reads, check ReadAll, actual role grants, engine support and effective identity together."]}
+      ],
+      "sources":["s4","s6"],"related":["lh-engine","lh-policy"]
+    },
+    {
+      "id":"lh-sql","label":"SQL analytics endpoint","title":"SQL analytics endpoint identity modes","family":"lakehouse-family","parents":["lakehouse-family"],
+      "oneLake":{"roles":"not-listed","filtering":"conditional","note":"OneLake table policies are applied in user's identity mode. Delegated mode authorizes the consumer through SQL instead."},
+      "inheritance":[{"heading":"Associated SQL analytics endpoint","items":["SQLEndpoint"],"sources":["s1","s21","s5"],"table":{"headers":["Workspace role","Connect / Read","ReadData","SQL administration"],"rows":[["Admin",true,true,"CONTROL; workspace-wide monitoring"],["Member",true,true,"CONTROL"],["Contributor",true,true,"CONTROL"],["Viewer",true,true,"Reader"]]},"paragraphs":["The endpoint mode determines how table data is authorized: SQL in delegated mode, OneLake in user's identity mode. Table data stays read-only through this endpoint."]}],
+      "previewBullets":["All four workspace roles inherit endpoint entry and SQL reading.","Delegated identity: SQL authorizes the user; the owner reads OneLake.","User's identity: the user's OneLake policies govern table access."],
+      "summary":"The SQL endpoint has two identity modes. Delegated mode authorizes the end user in SQL; user's identity mode makes OneLake authoritative for table data.",
+      "sections":[
+        {"heading":"Compare the authority","table":{"caption":"Read on the associated Fabric item is still required for endpoint entry.","headers":["Question","Delegated identity","User's identity"],"rows":[["Identity reading OneLake","Item owner / delegated identity","Signed-in caller"],["Authority for end-user table access","SQL permissions and policies","OneLake roles and policies"],["Table-level SQL grants","SQL authorization path","Not the OneLake table authority"],["Views, functions and procedures","SQL permissions","SQL permissions can still apply"],["RLS / CLS","SQL-defined, where supported","OneLake-defined, where supported"]]}},
+        {"heading":"Configure the mode before use","paragraphs":["New endpoints default to delegated identity. Changing mode can affect endpoints across the workspace, cancel queries and remove some SQL metadata. Configure and validate the desired mode before using dependent workloads."]},
+        {"heading":"Views and table policies","paragraphs":["In user's identity mode, a view also follows the underlying OneLake table policies."]}
+      ],
+      "sources":["s3","s5"],"related":["lh-delegated","lh-user","lh-policy"]
+    },
+    {
+      "id":"lh-delegated","label":"Delegated identity","title":"Delegated SQL endpoint identity","family":"lakehouse-family","parents":["lh-sql"],
+      "oneLake":{"filtering":"not-applied","note":"The end user's OneLake table policies are not applied on this SQL route. SQL authorizes the user; the owner still needs OneLake source access."},
+      "previewBullets":["Consumer: Read for entry, plus ReadData or selected SQL grants.","SQL roles and policies determine the consumer's result.","The item owner supplies the identity used to read OneLake."],
+      "inheritanceFrom":"lh-sql",
+      "summary":"Read allows entry; SQL grants, roles and policies authorize the consumer. OneLake is read through the item owner's identity, which needs the required source access.",
+      "sections":[
+        {"heading":"Entry, identity and authority","bullets":["Entry: Fabric Read, inherited or shared.","Data: broad ReadData or granular SQL permissions on selected objects.","SQL authorizes the querying principal; the item owner's identity reads OneLake.","Authority on this route: SQL GRANT/REVOKE/DENY, roles and supported RLS/CLS/DDM."]},
+        {"heading":"Example: a public view","paragraphs":["Grant Read on the item and SELECT on a public view that excludes a sensitive column. Do not independently grant SELECT on the protected base table.","A view grant need not grant direct base-table access. Verify ownership and actual allow/deny behavior on the target endpoint instead of assuming full SQL Server parity."]},
+        {"heading":"Keep the route distinction","paragraphs":["The end user's OneLake roles are not the authority on this delegated SQL route. The owner still needs source access; shortcuts have additional rules.","Table data remains read-only in a Lakehouse SQL endpoint."]}
+      ],
+      "sources":["s3","s5","s7"],"related":["lh-user","warehouse","effective-access"]
+    },
+    {
+      "id":"lh-user","label":"User's identity","title":"SQL endpoint using the user's identity","family":"lakehouse-family","parents":["lh-sql"],
+      "oneLake":{"filtering":"supported","note":"The caller's OneLake roles govern table reads. Configure the roles on the supported source item, not as endpoint-level OneLake roles."},
+      "previewBullets":["Read provides endpoint entry.","OneLake roles govern the user's table, row and column access.","SQL permissions still apply to supported views, functions and procedures."],
+      "inheritanceFrom":"lh-sql",
+      "summary":"The signed-in user's identity is passed to OneLake, where table, row and column policies govern the data returned.",
+      "sections":[
+        {"heading":"Entry, identity and authority","bullets":["Entry: Read on the associated Fabric item.","Reader data rights: applicable OneLake roles and policies.","Identity: the signed-in user is passed through to OneLake.","Table authority: OneLake RLS/CLS where supported, not table SQL GRANT/REVOKE."]},
+        {"heading":"Example: NorthReader","paragraphs":["A narrow role can allow the demo table, North rows and public columns. Verify the effective result across all assigned roles and the supported engine.","A broader overlapping grant can change the result. Column metadata can remain visible even when reading that column is restricted."]},
+        {"heading":"What SQL still controls","paragraphs":["SQL permissions can still protect eligible views, functions and procedures. A view grant does not bypass underlying OneLake table policies.","Security synchronization and role composition are engine-specific. The current documentation includes exceptions affecting elevated roles, so do not substitute Admin testing for a consumer check."]}
+      ],
+      "sources":["s4","s5","s6"],"related":["lh-delegated","lh-policy","lh-engine"]
+    },
+    {
+      "id":"sql-family","label":"SQL data items","title":"SQL data items","family":"sql-family","parents":["effective-access"],
+      "oneLake":{"roles":"mixed","note":"Mirrored databases support Read roles. Warehouse and SQL database are not listed as OneLake role-authoring hosts."},
+      "previewBullets":["Warehouse: SQL grants and a separate OneLake reading path.","SQL database: database permissions and a mirrored analytical copy.","Mirrored database: replication configuration plus its SQL and OneLake routes."],
+      "summary":"Warehouse, SQL database and mirrored database reuse familiar permission names, but their mappings and capabilities differ. SQL entry and granular SQL authorization remain separate.",
+      "sections":[
+        {"heading":"Follow the actual data item","bullets":["Warehouse: SQL ReadData and the separate OneLake/Spark ReadAll route.","SQL database: database-specific role mapping and SQL controls; Viewer ReadAll differs from Lakehouse/Warehouse.","Mirrored database: item and endpoint entry, mirrored data access and configuration/landing-zone Write capabilities."]},
+        {"heading":"Choose the SQL reading scope","paragraphs":["Base Read allows connection. Add broad ReadData or granular SQL permissions for the tables and views the consumer needs. Each item below includes its workspace-role inheritance."]}
+      ],
+      "sources":["s7","s8","s9","s10"],"related":["warehouse","sql-database","mirrored-database"]
+    },
+    {
+      "id":"warehouse","label":"Warehouse","title":"Warehouse SQL and OneLake routes","family":"sql-family","parents":["sql-family"],
+      "oneLake":{"roles":"not-listed","note":"Warehouse SQL policies are defined in SQL. Independent OneLake reads remain a separate authorization path."},
+      "inheritance":[{"heading":"Warehouse","items":["Warehouse"],"sources":["s7","s21","s1"],"table":{"headers":["Workspace role","Read","ReadData","ReadAll","Write / SQL CONTROL","Reshare","Monitor","Audit","Restore"],"rows":[["Admin",true,true,true,true,true,true,true,true],["Member",true,true,true,true,true,true,false,false],["Contributor",true,true,true,true,false,true,false,false],["Viewer",true,true,false,false,false,false,false,false]]},"paragraphs":["Admin, Member and Contributor inherit SQL CONTROL and Monitor. Audit and Restore are Admin defaults. Viewer inherits CONNECT and SQL reading; a separate OneLake grant can add that data path."]}],
+      "previewBullets":["Admin, Member and Contributor: SQL CONTROL and OneLake access.","Viewer: connect and read through SQL.","Read plus selected T-SQL grants supports narrow item-only access."],
+      "summary":"Read allows connection, ReadData is broad SQL reading, and ReadAll is the separate OneLake/Spark route. Read plus granular T-SQL is the narrow alternative.",
+      "sections":[
+        {"heading":"Choose a permission","table":{"headers":["Permission or path","Meaning"],"rows":[["Read","Open the item and connect"],["ReadData","Broad SQL reading"],["ReadAll","OneLake / Spark reading"],["Read + granular T-SQL","Read selected SQL objects"],["Monitor / Audit / Restore","Specialized capabilities with workload-specific sharing support"]]}},
+        {"heading":"SQL controls govern the SQL path","paragraphs":["Object grants, roles and supported RLS/CLS/DDM govern Warehouse SQL queries. Secure independent OneLake or Spark reads through their own data controls.","A public or North-only view can be granted without a separate base-table grant. Read is sufficient for connection entry."]}
+      ],
+      "sources":["s1","s7"],"related":["sql-database","lh-delegated","effective-access"]
+    },
+    {
+      "id":"sql-database","label":"SQL database","title":"SQL database permissions and Viewer differences","family":"sql-family","parents":["sql-family"],
+      "oneLake":{"roles":"not-listed","note":"Its SQL permissions and ReadAll on the analytical copy remain distinct from authoring OneLake security roles."},
+      "inheritance":[{"heading":"SQL database","items":["SQLDatabase"],"sources":["s8","s9"],"table":{"caption":"Default permissions on the SQL database item.","headers":["Workspace role","Read","ReadAll","ReadData","Write","Share"],"rows":[["Admin",true,true,true,true,true],["Member",true,true,true,true,true],["Contributor",true,true,true,true,false],["Viewer",true,true,true,false,false]]}}],
+      "previewBullets":["Admin, Member and Contributor inherit database read/write access.","Viewer inherits Read, ReadData and ReadAll.","Use SQL permissions for selected operations and objects."],
+      "summary":"Fabric SQL database supports Read, ReadData, ReadAll, Write and Share. Its documented Viewer mapping includes ReadAll, unlike Lakehouse and Warehouse.",
+      "sections":[
+        {"heading":"Connect first, authorize the requested operation","paragraphs":["Read allows connection. ReadData provides broad data/metadata reading; granular SQL permissions and roles can authorize selected capabilities.","Write provides full database administrative and data access. The SQL database authorization documentation states that SQL DENY inside the database takes priority."]},
+        {"heading":"Database and analytical copy","paragraphs":["SQL database ReadData and SQL analytics endpoint ReadData apply to their respective objects. ReadAll enables reading the mirrored data in OneLake.","Manage associated model permissions on the semantic model. Item permissions and SQL security metadata are maintained at their respective layers."]}
+      ],
+      "sources":["s8","s9"],"related":["warehouse","mirrored-database","semantic-model"]
+    },
+    {
+      "id":"mirrored-database","label":"Mirrored database","title":"Mirrored database permissions","family":"sql-family","parents":["sql-family"],
+      "oneLake":{"roles":"supported","note":"Supports Read roles. Mirrored catalogs, including Azure Databricks mirrored catalogs, also support Read roles."},
+      "inheritance":[{"heading":"Mirrored database item","items":["MirroredDatabase"],"sources":["s7","s10","s1"],"table":{"caption":"The data-sharing role matrix applies to Warehouse and Mirrored Database; the mirroring guide defines its Write behavior.","headers":["Workspace role","Read","ReadData: SQL","ReadAll: OneLake","Write","Reshare"],"rows":[["Admin",true,true,true,true,true],["Member",true,true,true,true,true],["Contributor",true,true,true,true,false],["Viewer",true,true,false,false,false]]},"paragraphs":["Write covers configuration and landing-zone writes. Source database rights remain under the source system's control. A Viewer needs an additional data grant for OneLake reading."]},{"heading":"Associated SQL analytics endpoint","items":["MirroredDatabase.SQLEndpoint"],"sources":["s10","s21"],"table":{"headers":["Workspace role","Connect / read SQL data","SQL role"],"rows":[["Admin",true,"CONTROL; workspace-wide monitoring"],["Member",true,"CONTROL"],["Contributor",true,"CONTROL"],["Viewer",true,"CONNECT and ReadData"]]}}],
+      "previewBullets":["Admin, Member and Contributor inherit Write and OneLake ReadAll.","Viewer can inspect the item and read its SQL endpoint; OneLake needs an additional grant.","Write covers mirroring configuration and landing-zone writes."],
+      "summary":"Read shares the mirrored item and associated SQL endpoint. ReadData, ReadAll and Write cover different access paths and configuration capabilities.",
+      "sections":[
+        {"heading":"Supported sharing capabilities","bullets":["Read: item and associated SQL endpoint entry.","ReadData: SQL analytics endpoint reading.","ReadAll: mirrored OneLake data reading, with applicable event-subscription behavior.","Write: mirrored database configuration and landing-zone data writes."]},
+        {"heading":"Source access","paragraphs":["The source system controls access to the original database. Fabric Write applies to the mirror's configuration and landing zone; connections and source identities have their own permissions."]}
+      ],
+      "sources":["s10"],"related":["sql-family","warehouse","lh-onelake"]
+    },
+    {
+      "id":"bi-family","label":"Power BI","title":"BI reports and semantic models","family":"bi-family","parents":["effective-access"],
+      "oneLake":{"roles":"not-listed","filtering":"conditional","note":"Semantic-model queries apply OneLake source policies through Direct Lake on OneLake. Import and other source paths have different authorization."},
+      "previewBullets":["Reports and apps deliver content to consumers.","Semantic-model permissions govern reading, building and editing.","Import and live modes use their configured source identities."],
+      "summary":"Share reports or apps for consumption, and use semantic-model permissions to control reading, building and editing model-based content.",
+      "sections":[
+        {"heading":"Reports and their model","paragraphs":["A report or app provides the consumption experience. Its semantic model has Read, Build, Reshare and Write permissions plus model-level RLS/OLS.","A sharing dialog can also grant Build on the associated semantic model."]},
+        {"heading":"Storage and connection identity matter","paragraphs":["Import serves cached model data. Direct Lake and DirectQuery source checks depend on connection identity and the actual source mode.","Do not give a report-only consumer Viewer in the data workspace just to make the report work."]}
+      ],
+      "sources":["s11","s13"],"related":["semantic-model","report-item","model-import","model-live"]
+    },
+    {
+      "id":"semantic-model","label":"Semantic model","title":"Semantic-model Read, Build, Reshare and Write","family":"bi-family","parents":["bi-family"],
+      "oneLake":{"roles":"not-listed","filtering":"conditional","note":"OneLake filtering is supported with Direct Lake on OneLake. Model RLS/OLS and source authorization are separate layers."},
+      "inheritance":[{"heading":"Semantic model","items":["SemanticModel"],"sources":["s11","s22"],"table":{"headers":["Workspace role","Read","Build","Reshare","Write"],"rows":[["Admin",true,true,true,true],["Member",true,true,true,true],["Contributor",true,true,false,true],["Viewer",true,false,false,false]]}}],
+      "previewBullets":["Admin and Member inherit all four permissions.","Contributor inherits Read, Build and Write; Viewer inherits Read.","Protect sensitive model data with RLS/OLS, rather than withholding Build."],
+      "summary":"Read can consume model data. Build enables creating and exploring content; it is not the security boundary for sensitive model data. Use model RLS/OLS where appropriate.",
+      "sections":[
+        {"heading":"The model's own permission set","table":{"headers":["Permission","Capability"],"rows":[["Read","Consume and interact with data through supported model/report experiences"],["Build","Build new content, explore the model and use supported Excel/XMLA scenarios"],["Reshare","Grant model access to others"],["Write","Modify/republish and perform supported model-management actions"]]}},
+        {"heading":"Read without Build is not data security","paragraphs":["Users with Read can access and interact with model data even without Build. Do not rely on withholding Build to protect sensitive information.","RLS affects readers/builders when defined; they need appropriate model-role membership. Write holders are not restricted like reader-role consumers. Model rules do not independently protect direct SQL, Spark or OneLake connections."]}
+      ],
+      "sources":["s11","s13"],"related":["model-import","model-live","report-item","item-access"]
+    },
+    {
+      "id":"model-import","label":"Import","title":"Import-mode consumption","family":"bi-family","parents":["semantic-model"],
+      "oneLake":{"filtering":"not-applied","note":"Consumer queries read the cached model and its RLS/OLS. Source access is evaluated separately for the configured refresh identity."},
+      "previewBullets":["Consumers read the cached model through model/report permissions.","Model RLS/OLS controls the model result.","Refresh uses its own configured source identity."],
+      "inheritanceFrom":"semantic-model",
+      "summary":"Consumers query the cached semantic model. They generally do not need a direct grant on the original data source merely to consume the shared model/report.",
+      "sections":[
+        {"heading":"Consumer and refresh identity are different","paragraphs":["Model/report permissions and applicable model RLS/OLS govern consumption of the imported data.","Refresh uses its configured source identity and permissions. Consumer access to the model does not itself authorize a direct source connection."]},
+        {"heading":"Keep the source separately secured","paragraphs":["If a consumer independently has direct SQL or OneLake access, model RLS does not remove that access. Evaluate that route separately."]}
+      ],
+      "sources":["s11","s13"],"related":["semantic-model","model-live","report-item"]
+    },
+    {
+      "id":"model-live","label":"Direct Lake / DirectQuery","title":"Live-source modes and effective identity","family":"bi-family","parents":["semantic-model"],
+      "oneLake":{"filtering":"conditional","note":"Direct Lake on OneLake applies OneLake policies. For SQL-backed paths, follow the endpoint mode and the effective SSO/fixed identity."},
+      "previewBullets":["SSO evaluates the querying consumer's required source rights.","Fixed identity uses the configured principal's source permissions.","Model policies govern model queries alongside applicable source checks."],
+      "inheritanceFrom":"semantic-model",
+      "summary":"Source authorization depends on storage mode and connection identity. SSO can evaluate the consumer, while a fixed-identity connection evaluates its configured principal.",
+      "sections":[
+        {"heading":"SSO versus fixed identity","paragraphs":["With SSO, evaluate the querying consumer's required source rights. With a fixed identity and SSO disabled, evaluate the configured identity's source access instead."]},
+        {"heading":"Direct Lake has different source-check paths","bullets":["Direct Lake on SQL analytics endpoints checks effective-identity access through SQL.","Direct Lake on OneLake checks through OneLake; OneLake role configuration and feature support apply.","The owner also needs required source access for model framing/refresh operations."]},
+        {"heading":"Model and source policies","paragraphs":["Model RLS/OLS governs model queries. Source authorization also applies according to the connection mode and effective identity.","SQL policies, views and DirectQuery fallback have mode-specific behavior; follow the source-check path for the configured mode."]}
+      ],
+      "sources":["s11","s13","s4"],"related":["semantic-model","lh-sql","lh-policy"]
+    },
+    {
+      "id":"report-item","label":"Reports & apps","title":"Reports, dashboards and app delivery","family":"bi-family","parents":["bi-family"],
+      "oneLake":{"roles":"not-listed","note":"OneLake source enforcement depends on the associated model and its source path; report/app sharing is the delivery layer."},
+      "inheritance":[{"heading":"Reports and dashboards","items":["Report","Dashboard"],"sources":["s22"],"table":{"headers":["Workspace role","View / interact","Create / edit / delete","Share by default"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,false],["Viewer",true,false,false]]}},{"heading":"App publishing and delivery","items":["AppDelivery"],"sources":["s22"],"table":{"headers":["Workspace role","Publish / unpublish app","Update app","Consume workspace content"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",false,"When delegated by Admin",true],["Viewer",false,false,true]]},"paragraphs":["App audiences control app delivery to consumers. Power BI licensing and the associated model's permissions also apply."]}],
+      "previewBullets":["Admin, Member and Contributor can author reports and dashboards.","Viewer consumes content; model RLS/OLS governs model data.","Admin/Member publish apps; Contributor can update an app when delegated."],
+      "summary":"View and sharing rights apply to the report or app experience. A Build checkbox can grant related semantic-model capability; source data is not automatically shared.",
+      "sections":[
+        {"heading":"Use narrow delivery for consumers","paragraphs":["Share the report or use app delivery when a consumer does not need the entire workspace.","Report access, model Read/Build and underlying source permissions are related but distinct checks. A successful share of the report does not imply unrestricted SQL or OneLake access."]},
+        {"heading":"Follow the associated model","paragraphs":["Model Read supports consumption and Build supports creating new content. Model RLS/OLS governs model queries. Import and live-source modes have their own source-identity requirements."]}
+      ],
+      "sources":["s2","s11","s13"],"related":["semantic-model","model-import","model-live"]
+    },
+    {
+      "id":"execution-family","label":"Execution","title":"Execution and orchestration","family":"execution-family","parents":["effective-access"],
+      "oneLake":{"roles":"not-listed","filtering":"conditional","note":"Spark notebooks can enforce OneLake policies. Other jobs follow the engine, source path and execution identity they use."},
+      "previewBullets":["Choose who can view, edit, run and monitor each item.","Check the identity used by the trigger or scheduled run.","Authorize that identity on the required sources, sinks and connections."],
+      "summary":"Viewing, editing, running and monitoring are separate capabilities. The identity used by a job and its rights on sources, sinks and connections must also be evaluated.",
+      "sections":[
+        {"heading":"Authorize the action and its inputs","paragraphs":["Contributor and higher can execute supported workspace jobs. Supported direct item permissions can also authorize execution.","The notebook, pipeline/job and dataflow topics explain their own viewing, authoring and execution requirements."]},
+        {"heading":"Calling execution APIs","paragraphs":["A client needs the required delegated API scope and the caller needs permission on the target item. The execution identity also needs access to its sources, sinks and connections."]}
+      ],
+      "sources":["s1","s12","s20"],"related":["notebook-item","pipeline-jobs","dataflow-item"]
+    },
+    {
+      "id":"notebook-item","label":"Notebook","title":"Notebook modes and execution identity","family":"execution-family","parents":["execution-family"],
+      "oneLake":{"roles":"not-listed","filtering":"supported","note":"Supported Spark notebooks filter secured OneLake data. Roles are authored on the source item; notebook execution rights stay separate."},
+      "inheritance":[{"heading":"Notebook","items":["Notebook"],"sources":["s1","s12"],"table":{"headers":["Workspace role","Read","Write","Execute / cancel","View run output","Available mode"],"rows":[["Admin",true,true,true,true,"Develop"],["Member",true,true,true,true,"Develop"],["Contributor",true,true,true,true,"Develop"],["Viewer",true,false,false,true,"View"]]},"paragraphs":["A supported direct Read + Execute grant adds Run only capability. Data-source and connection permissions are checked for the execution identity."]}],
+      "previewBullets":["Admin, Member and Contributor can edit and run in Develop mode.","Viewer can inspect the notebook and run output.","A direct Read + Execute grant enables Run only without workspace-wide authoring."],
+      "summary":"Notebook Read/Write/Execute combinations determine View, Edit, Run only and Develop modes. A supported direct Run grant need not promote the consumer across the workspace.",
+      "sections":[
+        {"heading":"Permission combinations","table":{"headers":["Permissions","Available mode/capability"],"rows":[["Read","View"],["Read + Write","Edit without execution"],["Read + Execute","Run only"],["Read + Write + Execute","Develop"]]}},
+        {"heading":"Execution identity","paragraphs":["Interactive runs use the current user. A pipeline-triggered notebook uses the pipeline's last modified user's identity; schedules have their configured execution context.","Grant the effective reader the required Lakehouse, connection and other source permissions."]}
+      ],
+      "sources":["s12","s1","s20"],"related":["lh-onelake","pipeline-jobs","effective-access"]
+    },
+    {
+      "id":"pipeline-jobs","label":"Pipelines & jobs","title":"Data pipelines, Spark jobs and Copy jobs","family":"execution-family","parents":["execution-family"],
+      "oneLake":{"roles":"not-listed","note":"Data-policy enforcement follows the actual source, engine and runtime identity, separately from the job's execution permissions."},
+      "inheritance":[{"heading":"Data pipelines","items":["DataPipeline"],"sources":["s1","s20"],"table":{"headers":["Workspace role","View / monitor","Create / edit / delete","Run / cancel","Share by default"],"rows":[["Admin",true,true,true,true],["Member",true,true,true,true],["Contributor",true,true,true,false],["Viewer",true,false,false,false]]}},{"heading":"Spark job definitions","items":["SparkJobDefinition"],"sources":["s1","s20"],"table":{"headers":["Workspace role","View item / output","Create / edit / delete","Run / cancel"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,true],["Viewer",true,false,false]]}},{"heading":"Copy jobs","items":["CopyJob"],"sources":["s27","s20"],"table":{"headers":["Workspace role","View item","Create / edit / delete"],"rows":[["Admin",true,true],["Member",true,true],["Contributor",true,true],["Viewer",true,false]]},"paragraphs":["Running a supported job requires the target item's execution privileges. Check the Copy job's supported job operation, connections and source/sink rights before starting it."]}],
+      "previewBullets":["Contributor and higher author pipelines and Spark jobs and execute them.","Viewer can view those items and inspect supported run results.","Copy jobs have their own supported operations; every job needs authorized connections."],
+      "summary":"Check the specific item's view, author, execute and monitor capabilities. Supported item/job execution rights do not automatically authorize all sources or connections.",
+      "sections":[
+        {"heading":"Run the supported job type","paragraphs":["The job API checks the requested job type, the client's scopes and the caller's privileges on the item. Use the supported operation for the particular pipeline, Spark job or Copy job."]},
+        {"heading":"Check the job's dependencies","bullets":["Execution identity for the trigger and job.","Source and sink data permissions.","Connection use and configured credentials."]},
+        {"heading":"Deployment pipelines","paragraphs":["CI/CD deployment pipelines have a separate administration model from the Data pipelines covered here."]}
+      ],
+      "sources":["s1","s20"],"related":["notebook-item","dataflow-item","identity"]
+    },
+    {
+      "id":"dataflow-item","label":"Dataflow Gen2","title":"Dataflow Gen2 and shared-query links","family":"execution-family","parents":["execution-family"],
+      "oneLake":{"roles":"not-listed","note":"Check data authorization on its sources and destinations using the configured connection identities."},
+      "summary":"Dataflow Gen2 transforms and loads data. Workspace roles govern authoring and access; source connections and destination permissions govern its data.",
+      "inheritance":[{"heading":"Dataflow Gen2","items":["Dataflow"],"sources":["s22","s27","s17"],"table":{"headers":["Workspace role","View item","Create / edit","Consume via Dataflows connector","Open shared-query preview"],"rows":[["Admin",true,true,true,true],["Member",true,true,true,true],["Contributor",true,true,true,true],["Viewer",true,false,false,false]]},"paragraphs":["Contributor and higher can author the dataflow. Refresh and scheduling also use authorized connections, source identities and destinations. The Dataflows connector requires Contributor or higher for Gen2 consumption; output data can be shared separately at its destination."]}],
+      "previewBullets":["Contributor and higher can author Dataflow Gen2.","Viewer can see the item; Gen2 connector consumption requires Contributor or higher.","Shared-query preview links require Contributor in the source workspace."],
+      "sections":[
+        {"heading":"Authoring and shared queries are different experiences","paragraphs":["Authoring requires a dataflow the user can edit. In the current shared-query preview, opening the shared-query link requires Contributor in the source workspace.","The link does not grant dataflow access. A viewer-style consumption screen does not mean workspace Viewer is sufficient."]},
+        {"heading":"Reusing query logic","paragraphs":["Importing shared or personal queries reuses M code. Configure credentials and destination settings for the receiving dataflow.","Output data is secured at the destination. Evaluate the dataflow, connections and destination independently."]}
+      ],
+      "sources":["s17"],"related":["pipeline-jobs","item-access","variable-library"]
+    },
+    {
+      "id":"realtime-family","label":"Real-Time & IQ","title":"Real-Time and Fabric IQ item families","family":"realtime-family","parents":["effective-access"],
+      "oneLake":{"roles":"not-listed","filtering":"conditional","note":"Eventhouse is a supported filtering engine for secured OneLake data. This does not make every event or ontology item a OneLake role host."},
+      "previewBullets":["KQL combines workspace inheritance with Kusto roles.","Eventstreams connect sources and destinations.","Schema sets and ontology have their own definition and sharing capabilities."],
+      "summary":"Explore Eventhouse/KQL, eventstreams, event schema sets and ontology. Each topic explains workspace inheritance, sharing and data access.",
+      "sections":[
+        {"heading":"Choose an item","bullets":["Eventhouse/KQL: workspace roles map to Kusto roles; data-plane grants can add access.","Eventstreams: inspect and author streaming flows with source/destination permissions.","Event schema sets: view and manage schemas; data roles govern business events.","Ontology: view, edit and share the ontology structure."]}
+      ],
+      "sources":["s1","s14","s18"],"related":["kql-items","event-items","ontology-item","map-items"]
+    },
+    {
+      "id":"kql-items","label":"Eventhouse / KQL","title":"Eventhouse and KQL hybrid role-based access","family":"realtime-family","parents":["realtime-family"],
+      "oneLake":{"roles":"not-listed","filtering":"supported","note":"Eventhouse supports reading secured OneLake data with filtering. Its own Kusto roles remain distinct from OneLake role authoring."},
+      "summary":"Workspace roles map to Kusto administrative or reader roles. Kusto management commands can grant additional access to databases and their objects.",
+      "inheritance":[{"heading":"Eventhouse and KQL database","items":["Eventhouse","KQLDatabase"],"sources":["s14","s1"],"table":{"headers":["Workspace role","Eventhouse","KQL database"],"rows":[["Admin","AllDatabasesAdmin","Admin"],["Member","AllDatabasesAdmin","Admin"],["Contributor","AllDatabasesAdmin","Admin"],["Viewer","Viewer","Viewer"]]},"paragraphs":["Higher-level roles flow down to databases and tables. Kusto Viewer can read metadata and data subject to restricted-view policies. Fabric and Kusto data-plane role grants combine."]}],
+      "previewBullets":["Admin, Member and Contributor inherit administrative Kusto roles.","Workspace Viewer inherits Kusto Viewer access.","Additional Kusto roles can grant query, ingestion or scoped administration."],
+      "sections":[
+        {"heading":"Direct item sharing","table":{"headers":["Fabric item grant","Kusto effect"],"rows":[["Editor","Admin on the item"],["Viewer","Viewer on the item"]]}},
+        {"heading":"Additional data-plane roles","paragraphs":["Kusto management commands grant roles at supported database, table, function or materialized-view scopes.","Database Admin, User, Viewer and Ingestor enable different actions. An Ingestor can ingest without query access; restricted-view policies and role dependencies also apply."]}
+      ],
+      "sources":["s14"],"related":["realtime-family","event-items","map-items"]
+    },
+    {
+      "id":"event-items","label":"Streams & event schemas","title":"Eventstreams and event schema sets","family":"realtime-family","parents":["realtime-family"],
+      "oneLake":{"roles":"not-listed","note":"Event definitions and business-event data use their own permissions. Check OneLake authorization on any referenced data source."},
+      "inheritance":[{"heading":"Eventstream","items":["Eventstream"],"sources":["s1","s24"],"table":{"headers":["Workspace role","View definition","Create / edit / delete","Share by default"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,false],["Viewer",true,false,false]]},"paragraphs":["Adding sources requires Contributor or higher plus the source's prerequisites. Connections and destinations also require the appropriate access."]},{"heading":"Event schema set","items":["EventSchemaSet"],"sources":["s1","s23"],"table":{"headers":["Workspace role","View / generate client code","Manage schemas / versions / event types","Create / delete set"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,true],["Viewer",true,false,false]]},"paragraphs":["Business-event publishing and consumption use separate data access roles. Schema item permissions govern definitions."]}],
+      "previewBullets":["All four roles can view eventstream and schema-set definitions.","Contributor and higher can create and modify these items.","Business-event publishing/consumption requires the relevant data access role."],
+      "summary":"Workspace roles cover applicable definition/view/edit capabilities. Publishing or consuming business event data can require separate data-access roles.",
+      "sections":[
+        {"heading":"Streaming data and schema definitions","paragraphs":["An eventstream connects and transforms event flows. Its sources, connections and destinations each require access.","A schema set holds schemas and event types. You can share Read, Edit and Share on the set; those grants apply across its definitions."]},
+        {"heading":"Business event data access","paragraphs":["Assign the appropriate business-event data role to publishers and consumers. This authorization is checked separately from permission to view or modify schema definitions."]}
+      ],
+      "sources":["s1","s2"],"related":["kql-items","pipeline-jobs","identity"]
+    },
+    {
+      "id":"ontology-item","label":"Ontology (preview)","title":"Ontology permissions (preview)","family":"realtime-family","parents":["realtime-family"],
+      "oneLake":{"roles":"not-listed","note":"Ontology Read/Write/Reshare governs the ontology item; referenced data keeps its source permissions."},
+      "inheritance":[{"heading":"Ontology","items":["Ontology"],"sources":["s18","s27"],"table":{"headers":["Workspace role","Read / view structure","Write / edit","Reshare"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,false],["Viewer",true,false,false]]}}],
+      "previewBullets":["Admin and Member can view, edit and share the ontology.","Contributor can view/edit; Viewer can view its structure.","Direct sharing can grant Read, Write and Reshare for this ontology."],
+      "summary":"Ontology sharing supports Read, Write and Reshare. Its UI labels are Read, Edit and Share; supported item sharing does not require a workspace role.",
+      "sections":[
+        {"heading":"The ontology's permission set","table":{"headers":["Permission","UI label","Effect"],"rows":[["Read","Read","Discover/open and view model structure"],["Write","Edit","Modify the ontology"],["Reshare","Share","Share access up to the caller's own permissions"]]}},
+        {"heading":"Managing access","paragraphs":["Manage permissions shows inherited workspace access and direct item recipients. Change workspace role assignments to remove inherited rights.","This preview currently supports sharing through the Fabric UI. Changes can take up to two hours for a signed-in user."]}
+      ],
+      "sources":["s18"],"related":["item-access","effective-access","realtime-family"]
+    },
+    {
+      "id":"other-items","label":"Other items","title":"Supporting and extensible item families","family":"other-items","parents":["effective-access"],
+      "oneLake":{"roles":"not-listed","note":"These supporting items keep their own permissions. OneLake policies are defined on supported data items they reference."},
+      "previewBullets":["ML permissions cover experiment/model content and files.","Variable libraries and Maps include consumer/source requirements.","Environments and functions support reusable compute configuration and code."],
+      "summary":"Explore ML models and experiments, variable libraries, Maps, environments and user data functions.",
+      "sections":[
+        {"heading":"Choose an item","paragraphs":["Each topic explains its workspace inheritance and item-level capabilities. Follow referenced libraries, connections and data sources to complete the access path."]}
+      ],
+      "sources":["s2","s15","s16","s19"],"related":["ml-items","variable-library","map-items","extensible-items"]
+    },
+    {
+      "id":"ml-items","label":"ML models & experiments","title":"ML models and experiments","family":"other-items","parents":["other-items"],
+      "oneLake":{"roles":"not-listed","note":"ML item permissions govern models, experiments and files; OneLake source-data policies are configured on the source item."},
+      "summary":"ML Read opens runs or versions, metrics and downloadable files. Write creates and modifies experiment runs or model versions.",
+      "inheritance":[{"heading":"ML models and experiments","items":["MLModel","MLExperiment"],"sources":["s15"],"table":{"headers":["Workspace role","Read","Write","Execute","View execution output"],"rows":[["Admin",true,true,true,true],["Member",true,true,true,true],["Contributor",true,true,true,true],["Viewer",true,false,false,true]]},"paragraphs":["Model Read includes version metadata and model files; experiment Read includes run metrics, parameters and files. Write supports modification and adding versions or runs."]}],
+      "previewBullets":["Admin, Member and Contributor inherit Read, Write and Execute.","Viewer can read items, inspect output and download permitted files.","Item sharing can grant selected users additional supported actions."],
+      "sections":[
+        {"heading":"Reading an experiment or model","paragraphs":["Experiment Read includes runs, metrics, parameters and viewing/downloading run files. Model Read includes versions, version metadata and model files."]},
+        {"heading":"Writing and sharing","paragraphs":["Write supports modification and adding model versions or experiment runs. Item sharing includes Read with additional Edit, Share or Execute where supported."]}
+      ],
+      "sources":["s15"],"related":["semantic-model","execution-family","item-access"]
+    },
+    {
+      "id":"variable-library","label":"Variable library","title":"Variable-library permissions and consumers","family":"other-items","parents":["other-items"],
+      "oneLake":{"roles":"not-listed","note":"Library permissions cover its values. Referenced items retain their own data authorization."},
+      "inheritance":[{"heading":"Variable library","items":["VariableLibrary"],"sources":["s16"],"table":{"headers":["Workspace role","View","Add / edit / delete","Reshare"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,false],["Viewer",true,false,false]]},"paragraphs":["Permissions apply to the whole library. Referenced items and connections have their own Read requirements."]}],
+      "previewBullets":["Viewer can view the library; Contributor and higher can author it.","Member/Admin can also reshare it.","Using it through a shared consumer can still require workspace access."],
+      "summary":"The library uses item-wide permissions, not per-variable ACLs. Consumer and workspace prerequisites can still apply even when individual items have been shared.",
+      "sections":[
+        {"heading":"Item-wide permissions","paragraphs":["Viewer can view the library. Contributor or higher can author it; Member/Admin have broader resharing capabilities. Individual variables do not have their own independently managed permissions.","Referenced items and connections add their own checks."]},
+        {"heading":"Using the library from another item","note":"A shared-only user without workspace access cannot see or use the library through a pipeline merely because they have access to the consumer item.","paragraphs":["Creation and consumption check referenced items and connections. Resolution APIs can return a variable value without extended metadata when the caller lacks access to the referenced resource."]}
+      ],
+      "sources":["s16"],"related":["pipeline-jobs","dataflow-item","item-access"]
+    },
+    {
+      "id":"map-items","label":"Maps","title":"Maps: item, workspace and source checks","family":"other-items","parents":["other-items"],
+      "oneLake":{"roles":"not-listed","note":"Map layers follow their data-source permissions; roles for OneLake data are configured on the supported source item."},
+      "inheritance":[{"heading":"Map","items":["Map"],"sources":["s19"],"table":{"headers":["Workspace role","View item","Create / edit / delete","Share by default"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,false],["Viewer",true,false,false]]},"paragraphs":["Editing requires Contributor or higher plus Edit on the item. Layer visibility depends on the applicable source-data permissions."]}],
+      "previewBullets":["Contributor and higher create/edit Maps; Viewer can view them.","Admin and Member can share by default.","Layer data follows its Lakehouse, KQL or external connection permissions."],
+      "summary":"Maps support Read/Edit/Share, but source rights determine what layers can render. Editing also requires a workspace role that permits map writes.",
+      "sections":[
+        {"heading":"Access to map layers","paragraphs":["Give the user the necessary permissions on the underlying Lakehouse, KQL database or Eventhouse. A map can open while layers fail or remain incomplete when source access is missing."]},
+        {"heading":"Editing has a workspace condition","paragraphs":["The map permissions guidance requires an appropriate write-capable workspace role for editing. A Viewer cannot obtain map editing merely because Edit is selected in a share.","External layers can use configured connection credentials, so evaluate the actual source path rather than assuming every viewer uses a personal source connection."]}
+      ],
+      "sources":["s19"],"related":["kql-items","lh-onelake","item-access"]
+    },
+    {
+      "id":"extensible-items","label":"Environment / functions","title":"Environments and user data functions","family":"other-items","parents":["other-items"],
+      "oneLake":{"roles":"not-listed","note":"These items keep their own capabilities; functions and attached workloads use the data rights of their effective source identity."},
+      "summary":"An environment supplies reusable Spark settings and libraries. User data functions contain code that can be edited, published and invoked.",
+      "inheritance":[{"heading":"Environment","items":["Environment"],"sources":["s25","s27"],"table":{"headers":["Workspace role","View / attach","Edit ordinary environment","Edit workspace-default environment","Share by default"],"rows":[["Admin",true,true,true,true],["Member",true,true,false,true],["Contributor",true,true,false,false],["Viewer",true,false,false,false]]},"paragraphs":["Once an environment becomes the workspace default, only workspace Admins can update its contents. Running a notebook or Spark job also requires the job's execution and source permissions."]},{"heading":"User data functions","items":["UserDataFunction"],"sources":["s26","s27"],"table":{"headers":["Workspace role","View item","Edit / publish","Share by default"],"rows":[["Admin",true,true,true],["Member",true,true,true],["Contributor",true,true,false],["Viewer",true,false,false]]},"paragraphs":["Develop-mode testing requires Write. Invoking published functions requires Execute on the item. Sharing can grant Share, Edit and Execute; evaluate source connections for the invoked function."]}],
+      "previewBullets":["Contributor and higher can author ordinary environments and functions.","Only Admin can update an environment used as the workspace default.","Environment Read allows attaching it; invoking published functions requires Execute."],
+      "sections":[
+        {"heading":"Share an environment","paragraphs":["Read lets the recipient explore its settings and attach it to a notebook or Spark job. Edit updates its content, and Share lets the recipient share it further."]},
+        {"heading":"Develop and invoke functions","paragraphs":["Write supports Develop mode, testing and publishing. Execute supports invoking published functions in Run only mode or through a supported caller.","Grant access to the data connections and sources used by the function. API callers also need the required delegated scope."]}
+      ],
+      "sources":["s2","s20"],"related":["other-items","execution-family","identity"]
+    }
+  ],
+  "scenarios":[
+    {
+      "id":"workspace-admin","label":"Workspace admin","title":"Workspace administrator",
+      "summary":"Give a trusted administrator broad control of an Engineering workspace: manage access, author its items and operate its data workloads.",
+      "previewBullets":["Assign Admin on the workspace; item rights are inherited.","The assignment covers this workspace and its items.","Connections, external sources and other workspaces keep their own access checks."],
+      "sections":[
+        {"heading":"Workspace and task","paragraphs":["A platform administrator owns an Engineering workspace containing Lakehouses, a Warehouse and notebooks. The administrator manages the workspace and its collaborators."]},
+        {"kind":"grants","heading":"Permissions to assign","table":{"headers":["Scope / item","Assignment","What it enables"],"rows":[["Engineering workspace","Admin","Manage workspace settings and role assignments; create, edit and delete its items"],["Lakehouse","Read, ReadData, ReadAll and Write inherited from Admin","Author data and use the SQL and OneLake routes"],["Warehouse","SQL CONTROL and administrative permissions inherited from Admin","Manage SQL objects, data permissions and supported administration"],["Notebooks and jobs","Authoring and execution inherited from Admin","Develop, run, cancel and inspect supported workloads"],["Connected sources / other workspaces","Grant the required source or connection access to the actual reader","Use resources outside this workspace's inherited scope"]] }},
+        {"kind":"outcomes","heading":"Result and consequences","bullets":["The administrator can manage and operate the workspace without adding redundant direct shares on every item.","Admin is a trusted, broad-access role. Use a consumer identity when validating reader restrictions.","A narrow direct item share leaves inherited Admin capabilities in place.","Source identities, engine-specific policies and separately secured dependencies still apply."]}
+      ],
+      "related":["workspace-capabilities","effective-access","lakehouse-family","warehouse","notebook-item"],"sources":["s1","s3","s4","s7","s21"]
+    },
+    {
+      "id":"bi-report-consumer","label":"BI consumer","title":"Power BI report consumer",
+      "summary":"Share an Import-mode report or deliver it through an app, while keeping the consumer out of the BI and Engineering workspaces.",
+      "previewBullets":["Provide report/app access and Read on the associated semantic model.","Assign a model RLS role when the model defines RLS.","Import consumption uses cached model data; refresh uses its configured source identity."],
+      "sections":[
+        {"heading":"Workspace and task","paragraphs":["A BI workspace holds an Import semantic model and its report. The model refreshes from a Lakehouse or Warehouse in an Engineering workspace. A business user only needs the published report."]},
+        {"kind":"grants","heading":"Permissions to assign","table":{"headers":["Scope / item","Assignment","What it enables"],"rows":[["Report or published app","Report Read through sharing, or the appropriate app audience","Open the delivered report"],["Associated semantic model","Read, supplied through the supported report/app delivery or a direct grant","Consume and interact with model data"],["Model RLS, when defined","Membership in the intended RLS role","See the permitted model rows"],["BI / Engineering workspace","No workspace role for this item-only consumer","Keep access scoped to the delivered content"],["Power BI licensing / capacity","Meet the applicable consumer licensing requirements","Use the report on its hosting capacity"],["Source refresh","Configured refresh identity has source access","Keep the imported data up to date"]] }},
+        {"kind":"outcomes","heading":"Result and consequences","bullets":["The user reads the shared report without browsing the rest of either workspace.","Build is unnecessary for ordinary report consumption; model RLS/OLS protects sensitive model data.","The consumer does not need a direct source grant merely to read the imported data.","Direct Lake and DirectQuery require their own source-identity checks; use the live-source topic when choosing those modes."]}
+      ],
+      "related":["report-item","semantic-model","model-import","model-live","item-access"],"sources":["s2","s11","s13","s22"]
+    },
+    {
+      "id":"run-approved-work","label":"Notebook / pipeline","title":"Notebook / pipeline operator",
+      "summary":"Run an approved notebook with Read + Execute, or operate a pipeline through its workspace role. Grant data access to the identity that actually runs the work.",
+      "previewBullets":["Notebook Run only: grant Read + Execute on that notebook.","Pipeline workspace execution: Contributor or higher also enables authoring.","Data, environments and connections require their own permissions."],
+      "sections":[
+        {"heading":"Workspace and task","paragraphs":["An Orchestration workspace contains approved notebooks and pipelines; an Engineering workspace contains their source data. Choose direct notebook execution for a Run-only operator, or the pipeline alternative when the operator also needs orchestration authoring."]},
+        {"kind":"grants","heading":"Permissions to assign","table":{"headers":["Path / resource","Assignment and scope","What it enables"],"rows":[["Direct notebook route","Read + Execute on the approved notebook","Run only, without permission to edit its code"],["Source Lakehouse","Read on the item plus a OneLake Read role for the required data, assigned to the runtime identity","Read the selected source data through a supported engine"],["Attached environment, if used","Read on that environment","Use its published settings and libraries"],["Referenced connections, if used","Permission to use the configured connection","Connect using its configured identity and credentials"],["Alternative: Data pipeline","Contributor or higher on the Orchestration workspace","Create/edit pipelines as well as run and cancel them"],["Destination, if the job writes data","Required destination write permissions for the runtime identity","Write the intended output"]] }},
+        {"heading":"Which identity accesses the data?","paragraphs":["An interactive notebook run uses the current user. A notebook run as a pipeline activity uses the pipeline's last modified user's identity. A scheduled notebook run uses the user who created or last updated the schedule.","Check the configured connection identity as well. Choose the permissions for the actual execution path, rather than automatically granting every operator broad access to the data workspace."]},
+        {"kind":"outcomes","heading":"Result and consequences","bullets":["The direct notebook operator can run approved code while notebook editing stays unavailable.","The pipeline Contributor alternative also allows editing and deleting orchestration items; it is broader than notebook Run only.","Notebook execution alone leaves source, destination and connection permissions unchanged.","A data-access failure can occur after a run starts if its effective identity lacks a required input or output grant."]}
+      ],
+      "related":["notebook-item","pipeline-jobs","identity","lh-policy","extensible-items"],"sources":["s12","s1","s4","s20","s25"]
+    },
+    {
+      "id":"data-engineer","label":"DE contributor","title":"Data Engineering contributor",
+      "summary":"Give a data engineer Contributor access for workspace-wide data authoring, notebook development and supported job execution.",
+      "previewBullets":["Contributor creates, edits and runs supported workspace items.","Lakehouse SQL, OneLake and Write rights are inherited.","Connections and cross-workspace sources remain separately authorized."],
+      "sections":[
+        {"heading":"Workspace and task","paragraphs":["A data engineer builds Lakehouse tables, develops notebooks and maintains pipelines in an Engineering workspace. This is a collaboration role for the workspace, rather than a single-item reading assignment."]},
+        {"kind":"grants","heading":"Permissions to assign","table":{"headers":["Scope / item","Assignment","What it enables"],"rows":[["Engineering workspace","Contributor","Create, edit and delete items; execute supported workloads"],["Lakehouse","Read, ReadData, ReadAll and Write inherited from Contributor","Read through SQL/OneLake and author Lakehouse data"],["Warehouse / SQL endpoint","SQL CONTROL inherited from Contributor","Manage supported SQL objects and granular SQL permissions"],["Notebook","Read, Write and Execute inherited from Contributor","Develop and run code"],["Connections / cross-workspace resources","Grant the required use/data rights to the effective identity","Work with separately secured sources and destinations"]] }},
+        {"kind":"outcomes","heading":"Result and consequences","bullets":["The engineer can develop and operate the workspace's data workloads.","Contributor is a trusted author role, including broad data access and item deletion.","Fabric resharing is unavailable by default, while inherited SQL CONTROL still permits supported SQL permission management.","Removing a direct ReadAll share leaves Contributor's inherited access in place."]}
+      ],
+      "related":["workspace-capabilities","lakehouse-family","warehouse","notebook-item","effective-access"],"sources":["s1","s3","s7","s12","s21"]
+    },
+    {
+      "id":"sql-view-consumer","label":"SQL reader","title":"SQL view-only consumer",
+      "summary":"Give a consumer connection access to a Warehouse and SELECT on an approved view, keeping broad SQL and OneLake reading outside this assignment.",
+      "previewBullets":["Share the Warehouse with Read for connection entry.","Grant SELECT on the selected view.","Start from a consumer without broader workspace, group or data grants."],
+      "sections":[
+        {"heading":"Workspace and task","paragraphs":["A data team publishes an existing, validated Warehouse view containing approved rows and columns. The consumer has no workspace role or overlapping group/data grants in that workspace and only needs this view."]},
+        {"kind":"grants","heading":"Permissions to assign","table":{"headers":["Scope / item","Assignment","What it enables"],"rows":[["Warehouse item","Read through item sharing","Open the item and connect to SQL"],["Approved view","SQL SELECT on that view","Query its approved result"],["Broad SQL reading","Leave ReadData unassigned","Keep the assignment scoped to the selected SQL objects"],["Direct OneLake / Spark reading","Leave ReadAll unassigned","Keep raw/direct data reading outside this assignment"],["Warehouse owner / source identity","Maintain required delegated/source access","Allow the configured data path to operate"]] }},
+        {"kind":"outcomes","heading":"Result and consequences","bullets":["The consumer can connect and query the approved view.","Unrelated base tables stay unavailable unless another grant authorizes them; validate view ownership and permissions on the target Warehouse.","Adding workspace Viewer would add broad inherited SQL reading and change this least-privilege result.","Inspect direct, workspace and group grants together when checking the effective result."]}
+      ],
+      "related":["warehouse","lh-delegated","item-access","effective-access"],"sources":["s7","s21","s2"]
+    },
+    {
+      "id":"realtime-reader","label":"Real-Time reader","title":"Real-Time workspace reader",
+      "summary":"Give an operations analyst Viewer access to a Real-Time workspace for KQL reading and inspection of streaming definitions.",
+      "previewBullets":["Workspace Viewer maps to Kusto Viewer on the applicable items.","The analyst can inspect eventstream and schema-set definitions.","Editing, ingestion and business-event data operations need their own authorization."],
+      "sections":[
+        {"heading":"Workspace and task","paragraphs":["A Real-Time workspace contains an Eventhouse, KQL databases, eventstreams and event schema sets. An operations analyst needs read access across that workspace."]},
+        {"kind":"grants","heading":"Permissions to assign","table":{"headers":["Scope / item","Assignment","What it enables"],"rows":[["Real-Time workspace","Viewer","View applicable workspace items"],["Eventhouse / KQL databases","Kusto Viewer inherited from workspace Viewer","Read permitted KQL data and metadata"],["Eventstreams","View inherited from workspace Viewer","Inspect stream definitions"],["Event schema sets","View inherited from workspace Viewer","Inspect schemas, versions and event types"],["Ingestion / business-event data","Assign a specific data role only when that action is required","Authorize the intended data action separately"]] }},
+        {"kind":"outcomes","heading":"Result and consequences","bullets":["The analyst can query permitted KQL data and inspect the workspace's streaming definitions.","Kusto restricted-view policies and other applicable data rules determine the query result.","Viewer leaves creation, editing and deletion of those workspace items unavailable.","Publishing/consuming business events uses separate data roles. Add the required ingestion role for a producer instead of treating Viewer as an ingestion grant."]}
+      ],
+      "related":["kql-items","event-items","workspace-capabilities","realtime-family"],"sources":["s1","s14","s23","s24"]
+    }
+  ]
+}
+  </script>
+  <script>
+    "use strict";
+    const data = JSON.parse(document.getElementById("atlas-data").textContent);
+    const topics = new Map(data.topics.map(topic => [topic.id, topic]));
+    const scenarios = new Map(data.scenarios.map(scenario => [scenario.id, scenario]));
+    const children = new Map(data.topics.map(topic => [topic.id, []]));
+    const edges = [];
+    for (const topic of data.topics) {
+      for (const parent of topic.parents) {
+        if (!topics.has(parent)) throw new Error("Missing parent topic: " + parent);
+        children.get(parent).push(topic.id);
+        edges.push([parent, topic.id]);
+      }
+      for (const id of topic.sources) {
+        if (!data.sources[id]) throw new Error("Missing documentation reference: " + id);
+      }
+    }
+    const app = document.getElementById("app");
+    const preview = document.getElementById("preview");
+    let previewState = null;
+    let dismissTimer = null;
+    let graphObserver = null;
+    let edgeFrame = null;
+    let restoringPreviewFocus = false;
+    let previewNeedsPointerMovement = false;
+    const familyNames = {
+      "lakehouse-family":"Lakehouse & OneLake","sql-family":"SQL data items","bi-family":"Power BI",
+      "execution-family":"Execution","realtime-family":"Real-Time & IQ","other-items":"Other items"
+    };
+
+    function element(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined) el.textContent = text;
+      return el;
+    }
+
+    function localLink(kind, id, label, newTab = false, className = "") {
+      const a = element("a", className, label);
+      a.href = "#" + kind + "=" + encodeURIComponent(id);
+      if (newTab) {
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+      }
+      return a;
+    }
+
+    function sourceLink(id) {
+      const source = data.sources[id];
+      if (!source) throw new Error("Unknown documentation reference: " + id);
+      const a = element("a", "", source.title + " \u2197");
+      a.href = source.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.setAttribute("aria-label", source.title + " - Microsoft Learn, opens in a new tab");
+      return a;
+    }
+
+    function inheritanceFor(item) {
+      return item.inheritanceFrom ? topics.get(item.inheritanceFrom).inheritance : item.inheritance || [];
+    }
+
+    function sourceIds(item) {
+      const support = oneLakeInfo(item);
+      return [...new Set([...(support ? support.sources : []),
+        ...inheritanceFor(item).flatMap(section => section.sources), ...item.sources])];
+    }
+
+    function oneLakeInfo(item) {
+      const support = item.oneLake;
+      if (!support) return null;
+      const roles = {
+        "supported":"Role authoring: supported.",
+        "not-listed":"Role authoring: not listed for this item type.",
+        "mixed":"Role authoring: varies by item type."
+      };
+      const filtering = {
+        "supported":"RLS/CLS filtering: supported on this reading path.",
+        "conditional":"RLS/CLS filtering: depends on the reading mode or engine.",
+        "not-applied":"RLS/CLS filtering: not applied on this reading path."
+      };
+      const details = [];
+      const sources = [];
+      if (support.roles) {
+        if (!Object.hasOwn(roles, support.roles)) throw new Error("Unknown OneLake role support: " + support.roles);
+        details.push(roles[support.roles]);
+        sources.push("s4");
+      }
+      if (support.filtering) {
+        if (!Object.hasOwn(filtering, support.filtering)) throw new Error("Unknown OneLake filtering support: " + support.filtering);
+        details.push(filtering[support.filtering]);
+        sources.push("s6");
+      }
+      let label, state;
+      if (support.roles === "supported") [label, state] = ["OL roles \u2713", "supported"];
+      else if (support.filtering === "supported") [label, state] = ["OL RLS/CLS \u2713", "supported"];
+      else if (support.filtering === "conditional") [label, state] = ["OL RLS/CLS: varies", "conditional"];
+      else if (support.filtering === "not-applied") [label, state] = ["OL RLS/CLS \u2014", "unavailable"];
+      else if (support.roles === "mixed") [label, state] = ["OL roles: varies", "conditional"];
+      else if (support.roles === "not-listed") [label, state] = ["OL roles \u2014", "unavailable"];
+      else throw new Error("OneLake support has no capability: " + item.id);
+      return {label, state, description:[...details, support.note].join(" "), sources};
+    }
+
+    function renderOneLakeInfo(support) {
+      const box = element("div", "onelake-info");
+      box.append(element("strong", "", "OneLake security"), element("p", "", support.description));
+      return box;
+    }
+
+    function ancestors(id) {
+      const result = new Set();
+      const visit = current => {
+        for (const parent of topics.get(current).parents) {
+          if (!result.has(parent)) {
+            result.add(parent);
+            visit(parent);
+          }
+        }
+      };
+      visit(id);
+      return result;
+    }
+
+    function updateHighlight() {
+      const id = previewState && previewState.kind === "topic" ? previewState.id : null;
+      const parentIds = id ? ancestors(id) : new Set();
+      for (const button of app.querySelectorAll(".node-button")) {
+        const current = button.dataset.topic === id;
+        button.classList.toggle("is-current", current);
+        button.classList.toggle("is-ancestor", parentIds.has(button.dataset.topic));
+        if (current) button.setAttribute("aria-describedby", "preview-summary" +
+          (topics.get(id).oneLake ? " preview-onelake" : ""));
+        else button.removeAttribute("aria-describedby");
+      }
+      for (const path of app.querySelectorAll(".graph-edge")) {
+        const active = Boolean(id &&
+          (path.dataset.to === id || parentIds.has(path.dataset.to)) &&
+          parentIds.has(path.dataset.from));
+        path.classList.toggle("is-active", active);
+        if (active) path.parentNode.append(path);
+      }
+    }
+
+    function clearDismiss() {
+      if (dismissTimer !== null) clearTimeout(dismissTimer);
+      dismissTimer = null;
+    }
+
+    function positionPreview() {
+      if (preview.hidden || !previewState || !previewState.trigger.isConnected) return;
+      const trigger = previewState.trigger.getBoundingClientRect();
+      const margin = 12;
+      preview.style.maxHeight = Math.max(100, innerHeight - margin * 2) + "px";
+      const width = preview.getBoundingClientRect().width;
+      let height = preview.getBoundingClientRect().height;
+      let left = trigger.right + margin;
+      let top;
+      if (left + width <= innerWidth - margin && left >= margin) {
+        top = trigger.top;
+      } else if (trigger.left - width - margin >= margin) {
+        left = trigger.left - width - margin;
+        top = trigger.top;
+      } else {
+        const below = innerHeight - trigger.bottom - margin * 2;
+        const above = trigger.top - margin * 2;
+        const placeBelow = below >= height || below >= above;
+        const available = placeBelow ? below : above;
+        if (height > available) {
+          preview.style.maxHeight = Math.max(100, available) + "px";
+          height = preview.getBoundingClientRect().height;
+        }
+        left = (trigger.left + trigger.right - width) / 2;
+        top = placeBelow ? trigger.bottom + margin : trigger.top - height - margin;
+      }
+      left = Math.max(margin, Math.min(left, innerWidth - width - margin));
+      top = Math.max(margin, Math.min(top, innerHeight - height - margin));
+      preview.style.left = left + "px";
+      preview.style.top = top + "px";
+    }
+
+    function showPreview(kind, id, trigger) {
+      const item = (kind === "topic" ? topics : scenarios).get(id);
+      if (!item) throw new Error("Unknown preview target: " + id);
+      clearDismiss();
+      previewNeedsPointerMovement = false;
+      previewState = {kind, id, trigger};
+      document.getElementById("preview-title").textContent = item.title;
+      document.getElementById("preview-summary").textContent = item.summary;
+      const bullets = document.getElementById("preview-bullets");
+      bullets.replaceChildren(...(item.previewBullets || []).map(text => element("li", "", text)));
+      bullets.hidden = !bullets.childElementCount;
+      const support = oneLakeInfo(item);
+      const supportBox = document.getElementById("preview-onelake");
+      supportBox.replaceChildren();
+      supportBox.hidden = !support;
+      if (support) supportBox.append(renderOneLakeInfo(support));
+      const references = document.getElementById("preview-sources");
+      references.replaceChildren(...sourceIds(item).slice(0, 3).map(sourceLink));
+      document.getElementById("preview-hint").textContent = kind === "topic" ?
+        "Click to open the full topic." : "Click to open the full scenario.";
+      preview.hidden = false;
+      updateHighlight();
+      positionPreview();
+    }
+
+    function hidePreview(restoreFocus = false) {
+      clearDismiss();
+      const previous = previewState;
+      previewState = null;
+      preview.hidden = true;
+      previewNeedsPointerMovement = true;
+      updateHighlight();
+      if (restoreFocus && previous && previous.trigger.isConnected) {
+        restoringPreviewFocus = true;
+        previous.trigger.focus({preventScroll:true});
+        restoringPreviewFocus = false;
+      }
+    }
+
+    function scheduleDismiss() {
+      clearDismiss();
+      dismissTimer = setTimeout(() => {
+        if (!previewState) return;
+        const trigger = previewState.trigger;
+        const focused = document.activeElement;
+        const keyboardFocus = focused && focused.matches(":focus-visible") &&
+          (preview.contains(focused) || trigger === focused);
+        if (preview.matches(":hover") || trigger.matches(":hover") || keyboardFocus) return;
+        hidePreview();
+      }, 220);
+    }
+
+    function bindPreview(trigger, kind, id) {
+      trigger.addEventListener("pointerenter", event => {
+        if (event.pointerType === "touch" || previewNeedsPointerMovement) return;
+        showPreview(kind, id, trigger);
+      });
+      trigger.addEventListener("pointermove", event => {
+        if (event.pointerType !== "touch" && previewNeedsPointerMovement && (event.movementX || event.movementY)) {
+          showPreview(kind, id, trigger);
+        }
+      });
+      trigger.addEventListener("pointerleave", scheduleDismiss);
+      trigger.addEventListener("focus", () => {
+        if (!restoringPreviewFocus && trigger.matches(":focus-visible")) {
+          trigger.scrollIntoView({block:"nearest", inline:"nearest"});
+          showPreview(kind, id, trigger);
+          // Keyboard scrolling can move another node under a stationary pointer.
+          previewNeedsPointerMovement = true;
+        }
+      });
+      trigger.addEventListener("blur", scheduleDismiss);
+    }
+
+    function nodeLink(id, familyRoot = false) {
+      const topic = topics.get(id);
+      if (!topic) throw new Error("Unknown map topic: " + id);
+      const link = localLink("topic", id, undefined, true, "node-button" + (familyRoot ? " family-root" : ""));
+      link.append(element("span", "node-label", topic.label));
+      const support = oneLakeInfo(topic);
+      if (support) {
+        const badge = element("span", "onelake-badge " + support.state, support.label);
+        badge.setAttribute("aria-hidden", "true");
+        link.append(badge);
+      }
+      link.dataset.topic = id;
+      link.setAttribute("aria-label", "Open " + topic.label + " in a new tab");
+      bindPreview(link, "topic", id);
+      return link;
+    }
+
+    function renderBranch(id, familyRoot = false) {
+      const branch = element("div", "branch");
+      branch.append(nodeLink(id, familyRoot));
+      const next = children.get(id);
+      if (next.length) {
+        const list = element("div", id === "lakehouse-family" ? "route-split" :
+          "branch-children" + (next.length === 1 ? " single-child" : ""));
+        for (const child of next) list.append(renderBranch(child));
+        branch.append(list);
+      }
+      return branch;
+    }
+
+    function drawEdges() {
+      const canvas = app.querySelector(".graph-canvas");
+      const svg = app.querySelector(".graph-lines");
+      if (!canvas || !svg) return;
+      const outer = canvas.getBoundingClientRect();
+      const positions = new Map();
+      for (const node of canvas.querySelectorAll(".node-button")) {
+        const r = node.getBoundingClientRect();
+        positions.set(node.dataset.topic, {
+          left:r.left-outer.left,right:r.right-outer.left,top:r.top-outer.top,bottom:r.bottom-outer.top,
+          cx:(r.left+r.right)/2-outer.left,cy:(r.top+r.bottom)/2-outer.top
+        });
+      }
+      svg.setAttribute("viewBox", "0 0 " + canvas.clientWidth + " " + canvas.clientHeight);
+      svg.replaceChildren();
+      for (const [from, to] of edges) {
+        const a = positions.get(from);
+        const b = positions.get(to);
+        if (!a || !b) throw new Error("Map edge is missing a rendered node: " + from + " -> " + to);
+        let d;
+        if (data.map.essentials.includes(from) || from === "lakehouse-family") {
+          const middle = a.bottom + (b.top-a.bottom)/2;
+          d = `M ${a.cx} ${a.bottom} V ${middle} H ${b.cx} V ${b.top}`;
+        } else if (children.get(from).length === 1) {
+          d = `M ${a.cx} ${a.bottom} V ${b.top}`;
+        } else {
+          const spine = b.left - 10;
+          d = `M ${a.cx} ${a.bottom} V ${a.bottom+12} H ${spine} V ${b.cy} H ${b.left}`;
+        }
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("class", "graph-edge");
+        path.dataset.from = from;
+        path.dataset.to = to;
+        svg.append(path);
+      }
+      updateHighlight();
+    }
+
+    function queueEdges() {
+      if (edgeFrame !== null) cancelAnimationFrame(edgeFrame);
+      edgeFrame = requestAnimationFrame(() => {
+        edgeFrame = null;
+        drawEdges();
+      });
+    }
+
+    function renderOverview(scrollToScenarios) {
+      document.title = data.name;
+      app.dataset.view = "overview";
+      previewNeedsPointerMovement = false;
+      const intro = element("section", "intro");
+      intro.append(element("p", "eyebrow", "Microsoft Fabric - Customer reference"),
+        element("h1", "", data.name),
+        element("p", "intro-lead", "Simplify Microsoft Fabric access decisions. Explore workspace roles, item permissions and data access paths, then find a practical starting point for your scenario."));
+      const actions = element("nav", "intro-actions");
+      actions.setAttribute("aria-label", "Get started");
+      const scenariosLink = element("a", "", "Find your scenario");
+      scenariosLink.href = "#scenarios";
+      actions.append(scenariosLink, localLink("topic", "effective-access", "Understand the access model"));
+      intro.append(actions, element("p", "intro-privacy", "Runs locally in your browser. No sign-in, tenant connection or data collection."));
+      const card = element("section", "map-card");
+      card.setAttribute("aria-label", "Fabric access diagram");
+      const mapHeading = element("div", "map-heading");
+      const mapHelp = element("p", "", "Follow the map from identity to an item family. Hover or focus for a preview; open a card for full guidance in a new tab. Scroll the map sideways on smaller screens.");
+      mapHelp.id = "map-help";
+      mapHeading.append(element("h2", "", "Follow the access path"), mapHelp);
+      const viewport = element("div", "map-viewport");
+      viewport.tabIndex = 0;
+      viewport.setAttribute("role", "region");
+      viewport.setAttribute("aria-label", "Access map; scroll horizontally to explore all six item families");
+      viewport.setAttribute("aria-describedby", "map-help");
+      const canvas = element("div", "graph-canvas");
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "graph-lines");
+      svg.setAttribute("aria-hidden", "true");
+      const essentials = element("div", "essentials");
+      for (const id of data.map.essentials) {
+        const node = nodeLink(id);
+        if (id === "identity") node.classList.add("identity-node");
+        if (id === "effective-access") node.classList.add("effective-node");
+        essentials.append(node);
+      }
+      const families = element("div", "family-grid");
+      for (const id of data.map.families) {
+        const family = element("section", "family-block");
+        family.dataset.family = id;
+        family.setAttribute("aria-label", familyNames[id]);
+        family.append(renderBranch(id, true));
+        families.append(family);
+      }
+      canvas.append(svg, essentials, families);
+      viewport.append(canvas);
+      const legend = element("details", "map-legend");
+      legend.append(element("summary", "", "Map legend and permission terms"));
+      const terms = element("dl");
+      for (const [term, definition] of [
+        ["OL", "OneLake. Badges distinguish role authoring from filtering on a reading path."],
+        ["RLS / CLS / OLS", "Row-level, column-level and object-level security."],
+        ["Read", "Item entry or consumption; the exact capability depends on the item type."],
+        ["ReadData", "Broad SQL reading on the applicable data item or endpoint."],
+        ["ReadAll", "OneLake / Spark reading, subject to the item's data-access rules."],
+        ["Build", "Create and explore semantic-model content; not a substitute for data security."],
+        ["Badge states", "A check mark indicates support; varies means conditional support; a dash means not applied or not listed. Open the topic for the distinction."]
+      ]) terms.append(element("dt", "", term), element("dd", "", definition));
+      legend.append(terms);
+      card.append(mapHeading, viewport, legend);
+      const scenarioSection = element("section", "scenarios");
+      scenarioSection.id = "scenarios";
+      const scenarioHeading = element("div", "section-heading");
+      scenarioHeading.append(element("h2", "", "Frequent permission scenarios"));
+      const grid = element("div", "scenario-grid");
+      for (const scenario of data.scenarios) {
+        const a = localLink("scenario", scenario.id, undefined, true, "scenario-card");
+        a.setAttribute("aria-label", "Open " + scenario.title + " in a new tab");
+        a.append(element("span", "", scenario.title), element("span", "external-icon"));
+        a.lastChild.setAttribute("aria-hidden", "true");
+        bindPreview(a, "scenario", scenario.id);
+        grid.append(a);
+      }
+      scenarioSection.append(scenarioHeading, grid);
+      app.append(intro, card, scenarioSection, renderReferenceFooter());
+      viewport.scrollLeft = Math.max(0, (canvas.clientWidth - viewport.clientWidth)/2);
+      graphObserver = new ResizeObserver(queueEdges);
+      graphObserver.observe(canvas);
+      queueEdges();
+      if (scrollToScenarios) requestAnimationFrame(() => scenarioSection.scrollIntoView({block:"start"}));
+    }
+
+    function renderTable(spec) {
+      const wrap = element("div", "table-scroll");
+      const table = element("table");
+      if (spec.caption) table.append(element("caption", "", spec.caption));
+      const head = element("thead");
+      const row = element("tr");
+      for (const label of spec.headers) {
+        const th = element("th", "", label);
+        th.scope = "col";
+        row.append(th);
+      }
+      head.append(row);
+      const body = element("tbody");
+      for (const values of spec.rows) {
+        if (values.length !== spec.headers.length) throw new Error("Table row does not match its headings");
+        const tr = element("tr");
+        values.forEach((value, index) => {
+          const cell = element(index === 0 ? "th" : "td");
+          if (index === 0) cell.scope = "row";
+          if (typeof value === "boolean") {
+            cell.textContent = value ? "Yes" : "No";
+            cell.className = value ? "cell-yes" : "cell-no";
+          } else cell.textContent = value;
+          tr.append(cell);
+        });
+        body.append(tr);
+      }
+      table.append(head, body);
+      wrap.append(table);
+      return wrap;
+    }
+
+    function renderSections(sections, headingLevel = "h2") {
+      const fragment = document.createDocumentFragment();
+      for (const spec of sections) {
+        const section = element("section", "article-section");
+        section.append(element(headingLevel, "", spec.heading));
+        for (const paragraph of spec.paragraphs || []) section.append(element("p", "", paragraph));
+        if (spec.bullets) {
+          const list = element("ul");
+          for (const bullet of spec.bullets) list.append(element("li", "", bullet));
+          section.append(list);
+        }
+        if (spec.table) section.append(renderTable(spec.table));
+        if (spec.note) section.append(element("div", "article-note", spec.note));
+        if (spec.sources) {
+          const links = element("div", "inheritance-sources");
+          links.append(...spec.sources.map(sourceLink));
+          section.append(links);
+        }
+        fragment.append(section);
+      }
+      return fragment;
+    }
+
+    function renderReferenceFooter() {
+      const footer = element("footer", "atlas-footer");
+      footer.append(element("p", "", "Reference snapshot: " + data.reviewed + ". Features, preview availability and permission behavior can change. Consult each topic's Microsoft Learn sources and validate access with the intended consumer identity."),
+        element("p", "", "This field reference is not official Microsoft product documentation. Provided as is, without warranty, production support or service-level commitments."));
+      const link = element("a", "", "Repository disclaimer");
+      link.href = "https://github.com/microsoft/NLCSU/blob/main/DISCLAIMER.md";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      footer.append(link);
+      return footer;
+    }
+
+    function renderArticle(kind, id, item) {
+      app.dataset.view = kind;
+      app.dataset.entry = id;
+      document.title = item.title + " | " + data.name;
+      const article = element("article", "article");
+      const breadcrumb = element("nav", "breadcrumbs");
+      breadcrumb.setAttribute("aria-label", "Breadcrumb");
+      const home = element("a", "", "Atlas");
+      home.href = "#";
+      breadcrumb.append(home, element("span", "", "/"));
+      if (kind === "scenario") {
+        const link = element("a", "", "Scenarios");
+        link.href = "#scenarios";
+        breadcrumb.append(link, element("span", "", "/"));
+      } else if (item.family && item.family !== item.id) {
+        breadcrumb.append(localLink("topic", item.family, familyNames[item.family]), element("span", "", "/"));
+      }
+      breadcrumb.append(element("span", "", item.label));
+      const top = element("div", "article-top");
+      const topBack = element("a", "article-back", "Back to access map");
+      topBack.href = "#";
+      top.append(breadcrumb, topBack);
+      article.append(top, element("h1", "", item.title), element("p", "article-lead", item.summary));
+      const body = element("div", "article-body");
+      const support = oneLakeInfo(item);
+      if (support) body.append(renderOneLakeInfo(support));
+      const inherited = inheritanceFor(item);
+      if (inherited.length) {
+        const section = element("section", "inheritance");
+        section.append(element("h2", "", "Workspace inheritance"));
+        if (item.inheritanceFrom) {
+          const owner = topics.get(item.inheritanceFrom);
+          const scope = element("p");
+          scope.append(document.createTextNode("This route uses the permissions of "), localLink("topic", owner.id, owner.label), document.createTextNode("."));
+          section.append(scope);
+        }
+        section.append(renderSections(inherited, "h3"));
+        body.append(section);
+      }
+      body.append(renderSections(item.sections));
+      const next = new Set(kind === "topic" ? children.get(id) : []);
+      for (const related of item.related) next.add(related);
+      next.delete(id);
+      if (next.size) {
+        const section = element("section", "article-section");
+        section.append(element("h2", "", "Continue exploring"));
+        const grid = element("div", "related-grid");
+        for (const related of next) {
+          const topic = topics.get(related);
+          if (!topic) throw new Error("Unknown related topic: " + related);
+          grid.append(localLink("topic", related, topic.title, false, "related-link"));
+        }
+        section.append(grid);
+        body.append(section);
+      }
+      const references = element("section", "topic-sources");
+      references.append(element("h2", "", "Microsoft Learn"));
+      const sourceList = element("ul");
+      for (const source of sourceIds(item)) {
+        const li = element("li");
+        li.append(sourceLink(source));
+        sourceList.append(li);
+      }
+      references.append(sourceList);
+      body.append(references);
+      const footer = element("div", "article-footer");
+      const back = element("a", "", "Back to access map");
+      back.href = "#";
+      footer.append(back);
+      article.append(body, footer, renderReferenceFooter());
+      app.append(article);
+    }
+
+    function renderNotFound() {
+      app.dataset.view = "not-found";
+      document.title = "Topic not found | " + data.name;
+      const section = element("section", "not-found");
+      section.setAttribute("role", "alert");
+      section.append(element("p", "eyebrow", "Unknown reference"), element("h1", "", "Topic not found"),
+        element("p", "", "This local link does not identify a topic or scenario in this copy of the Atlas."));
+      const link = element("a", "", "Return to the access map");
+      link.href = "#";
+      section.append(link);
+      app.append(section);
+    }
+
+    function renderRoute() {
+      hidePreview();
+      if (graphObserver) graphObserver.disconnect();
+      if (edgeFrame !== null) cancelAnimationFrame(edgeFrame);
+      edgeFrame = null;
+      app.replaceChildren();
+      delete app.dataset.entry;
+      const hash = location.hash.slice(1);
+      const home = !hash || hash === "scenarios" || hash === "questions";
+      if (home) {
+        renderOverview(Boolean(hash));
+      } else {
+        const params = new URLSearchParams(hash);
+        const entries = Array.from(params.entries());
+        let kind = entries.length === 1 ? entries[0][0] : "";
+        let id = entries.length === 1 ? entries[0][1] : "";
+        const legacyQuestions = {
+          "example-item-only":["topic","item-access"],
+          "example-data-execution":["scenario","run-approved-work"],
+          "example-model-build":["topic","semantic-model"],
+          "example-viewer":["topic","workspace-capabilities"],
+          "example-read":["topic","item-access"],
+          "example-link":["topic","item-access"]
+        };
+        if (kind === "question" && Object.hasOwn(legacyQuestions, id)) [kind, id] = legacyQuestions[id];
+        if (kind === "topic" && id === "family-hub") id = "effective-access";
+        const registry = kind === "topic" ? topics : kind === "scenario" ? scenarios : null;
+        if (!registry || !registry.has(id)) renderNotFound();
+        else renderArticle(kind, id, registry.get(id));
+      }
+      if (hash !== "scenarios" && hash !== "questions") window.scrollTo(0, 0);
+    }
+
+    preview.addEventListener("pointerenter", clearDismiss);
+    preview.addEventListener("pointerleave", scheduleDismiss);
+    preview.addEventListener("focusin", clearDismiss);
+    preview.addEventListener("focusout", scheduleDismiss);
+    document.addEventListener("pointerdown", event => {
+      if (preview.hidden || preview.contains(event.target) || event.target.closest(".node-button,.scenario-card")) return;
+      hidePreview();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !preview.hidden) {
+        event.preventDefault();
+        hidePreview(true);
+      }
+    });
+    window.addEventListener("hashchange", renderRoute);
+    window.addEventListener("resize", () => { queueEdges(); positionPreview(); });
+    window.addEventListener("scroll", positionPreview, {capture:true, passive:true});
+    renderRoute();
+  </script>
+</body>
+</html>
