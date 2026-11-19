@@ -9,6 +9,9 @@ one visual reference, with common customer scenarios and links to Microsoft Lear
 
 ## Open the atlas
 
+Open [Fabric Access Atlas](https://microsoft.github.io/NLCSU/fabric/fabric-access-atlas/)
+directly in your browser, or download the file to use it locally:
+
 1. Open [index.html](./index.html) in GitHub.
 2. Select **Download raw file** in the file toolbar. Save the file as `index.html`
    if your browser prompts for a name.
@@ -23,7 +26,6 @@ Using the Fabric features described still requires the applicable licensing,
 capacity, permissions and feature availability.
 
 **GitHub displays HTML source rather than running the interactive page.**
-Download the file first; the repository link is a landing page, not a hosted app.
 
 ## Explore
 
@@ -43,23 +45,6 @@ Download the file first; the repository link is a landing page, not a hosted app
 Covered families include Lakehouse and OneLake, SQL data items, Power BI,
 execution and orchestration, Real-Time and Fabric IQ, and supporting items such
 as ML models, variable libraries, Maps and environments.
-
-## Share with customers
-
-Share this folder's GitHub URL as the landing page. Customers can read the
-introduction and download the atlas without cloning the repository. You can also
-share the standalone HTML file directly.
-
-Suggested introduction:
-
-> Fabric Access Atlas is an interactive guide that helps Microsoft Fabric
-> customers understand workspace roles, item permissions and data access paths.
-> Download the HTML file and open it in your browser to explore common scenarios
-> and find the relevant Microsoft Learn guidance.
-
-The file contains generic reference content only, with no customer data,
-credentials or environment-specific configuration. Opening it does not inspect
-your tenant or grant, revoke or validate any actual permissions.
 
 ## Scope and limitations
 
